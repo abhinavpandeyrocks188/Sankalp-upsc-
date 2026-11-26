@@ -1,0 +1,3171 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#312e81" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Sankalp UPSC" />
+  <title>Sankalp UPSC — Daily Checklist, Syllabus & Study Arena</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    @keyframes floatUpFade {
+      0% { opacity: 0; transform: translateY(10px) scale(0.94); }
+      18% { opacity: 1; transform: translateY(0) scale(1.03); }
+      82% { opacity: 1; transform: translateY(-14px) scale(1); }
+      100% { opacity: 0; transform: translateY(-28px) scale(0.95); }
+    }
+    .animate-xp-pop { animation: floatUpFade 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .animate-modal { animation: modalIn 0.18s ease-out forwards; }
+
+    @keyframes flamePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .animate-flame { animation: flamePulse 2.2s infinite ease-in-out; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen antialiased selection:bg-indigo-600 selection:text-white">
+
+  <!-- Top Alert Stack: Due Reminder & Incoming Streak Rescue Nudge -->
+  <div class="fixed top-0 left-0 right-0 z-50 flex flex-col">
+    <!-- Incoming Nudge Alert Banner (Wave 2) -->
+    <div id="nudge-alert-banner" class="hidden bg-indigo-600 text-white px-4 py-2.5 shadow-lg border-b border-indigo-500">
+      <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2 text-xs sm:text-sm font-bold">
+          <i data-lucide="bell-electric" class="w-4 h-4 shrink-0 text-amber-300"></i>
+          <span id="nudge-alert-text">Someone nudged you to protect your streak!</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="dismissNudgeBanner(true)" class="px-3 py-1 bg-amber-400 text-slate-950 text-xs font-extrabold rounded-lg hover:bg-amber-300 transition">Start Task</button>
+          <button onclick="dismissNudgeBanner(false)" class="px-2.5 py-1 bg-white/15 hover:bg-white/25 text-white text-xs font-bold rounded-lg transition">Dismiss</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Due Reminder Alert Banner -->
+    <div id="due-reminder-banner" class="hidden bg-amber-500 text-slate-950 px-4 py-2.5 shadow-lg">
+      <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2 text-xs sm:text-sm font-bold">
+          <i data-lucide="bell-ring" class="w-4 h-4 shrink-0"></i>
+          <span id="due-reminder-text">Reminder due!</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="due-reminder-done-btn" class="px-3 py-1 bg-slate-950 text-white text-xs font-bold rounded-lg hover:bg-slate-800 transition">Done (+10 XP)</button>
+          <button id="due-reminder-dismiss-btn" class="px-2.5 py-1 bg-amber-600/30 hover:bg-amber-600/50 text-slate-950 text-xs font-bold rounded-lg transition">Dismiss</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Toasts & XP Pops -->
+  <div id="toast-container" class="fixed top-16 right-4 z-50 flex flex-col items-end gap-2 pointer-events-none"></div>
+
+  <!-- Loading Splash -->
+  <div id="loading-screen" class="fixed inset-0 z-50 bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center gap-4 transition-opacity duration-300">
+    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-900 flex items-center justify-center text-white shadow-xl shadow-indigo-500/25">
+      <i data-lucide="landmark" class="w-7 h-7"></i>
+    </div>
+    <div class="text-center">
+      <h1 class="text-xl font-extrabold tracking-tight">Sankalp UPSC</h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Connecting cloud sync, cohort goals & Study Arena...</p>
+    </div>
+  </div>
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
+      <!-- Brand -->
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-900 flex items-center justify-center text-white shadow-sm shrink-0">
+          <i data-lucide="landmark" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="font-extrabold text-sm sm:text-base tracking-tight leading-none truncate">Sankalp UPSC</div>
+          <div id="header-rank-sub" class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 mt-0.5 truncate">Lvl 1 • Aspirant</div>
+        </div>
+      </div>
+
+      <!-- Desktop Nav Pills -->
+      <nav class="hidden md:flex items-center gap-1 bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl">
+        <button data-tab="today" class="desk-nav-btn flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition">
+          <i data-lucide="calendar-check" class="w-4 h-4"></i><span>Today</span>
+        </button>
+        <button data-tab="syllabus" class="desk-nav-btn relative flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition">
+          <i data-lucide="book-open" class="w-4 h-4"></i><span>Syllabus</span>
+          <span id="desk-due-rev-badge" class="hidden px-1.5 rounded-full text-[10px] bg-amber-500 text-slate-950 font-extrabold">0</span>
+        </button>
+        <button data-tab="notes" class="desk-nav-btn relative flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition">
+          <i data-lucide="notebook-pen" class="w-4 h-4"></i><span>Notes</span>
+          <span id="desk-rem-badge" class="hidden px-1.5 rounded-full text-[10px] bg-rose-500 text-white font-extrabold">0</span>
+        </button>
+        <button data-tab="arena" class="desk-nav-btn relative flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition">
+          <i data-lucide="trophy" class="w-4 h-4"></i><span>Arena</span>
+          <span id="desk-live-dot" class="hidden w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        </button>
+        <button data-tab="profile" class="desk-nav-btn flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition">
+          <i data-lucide="user-circle" class="w-4 h-4"></i><span>Profile</span>
+        </button>
+      </nav>
+
+      <!-- Right Header Pills -->
+      <div class="flex items-center gap-1.5 shrink-0">
+        <!-- Cloud Sync Status Pill (Wave 2) -->
+        <button onclick="switchTab('profile')" id="hdr-sync-pill" title="Account Cloud Sync Status" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:border-indigo-400 transition">
+          <span id="hdr-sync-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span id="hdr-sync-label">Guest</span>
+        </button>
+
+        <!-- Streak + Freeze Shield -->
+        <div title="Current Streak & Owned Streak Freezes" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/80 dark:border-amber-500/20 text-xs font-extrabold">
+          <span class="flex items-center gap-0.5 text-amber-600 dark:text-amber-400">
+            <i data-lucide="flame" class="w-3.5 h-3.5 animate-flame"></i>
+            <span id="hdr-streak">0</span>
+          </span>
+          <span class="text-slate-300 dark:text-slate-700">|</span>
+          <span class="flex items-center gap-0.5 text-sky-600 dark:text-sky-400">
+            <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+            <span id="hdr-freezes">0</span>
+          </span>
+        </div>
+
+        <!-- Study Coins -->
+        <div title="Spendable Study Coins" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200/80 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-xs font-extrabold">
+          <i data-lucide="coins" class="w-3.5 h-3.5 text-amber-500"></i>
+          <span id="hdr-coins">0</span>
+        </div>
+
+        <!-- Dark Mode Toggle -->
+        <button onclick="toggleDarkMode()" aria-label="Toggle Dark Mode" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 transition">
+          <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+          <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-5 pb-24 md:pb-10">
+
+    <!-- ==================== TAB 1: TODAY ==================== -->
+    <section id="view-today" class="tab-view space-y-5">
+
+      <!-- Live Exam Countdown Widget -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-3 sm:gap-5">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+              <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">UPSC Prelims</div>
+              <div class="text-sm font-extrabold text-slate-900 dark:text-white">
+                <span id="cd-prelims-days" class="text-indigo-600 dark:text-indigo-400">--</span> days left
+                <span id="cd-prelims-date" class="text-[11px] font-medium text-slate-400 ml-1">May 23, 2027</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-800"></div>
+
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <i data-lucide="pen-tool" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">UPSC Mains</div>
+              <div class="text-sm font-extrabold text-slate-900 dark:text-white">
+                <span id="cd-mains-days" class="text-amber-600 dark:text-amber-400">--</span> days left
+                <span id="cd-mains-date" class="text-[11px] font-medium text-slate-400 ml-1">Sep 17, 2027</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="openCountdownModal()" class="self-start sm:self-center px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1.5 transition">
+          <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i> Edit Dates
+        </button>
+      </div>
+
+      <!-- Hero Daily Progress Card -->
+      <div class="rounded-2xl bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 text-white p-5 sm:p-6 shadow-lg shadow-indigo-900/15 relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-indigo-500/20 blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div id="today-date-label" class="text-xs font-semibold uppercase tracking-wider text-indigo-200">Today</div>
+            <h1 class="text-xl sm:text-2xl font-extrabold mt-0.5">Namaste, <span id="today-name">Aspirant</span></h1>
+            <p class="text-xs text-indigo-200/90 mt-1">Consistency beats intensity. Protect your streak today.</p>
+          </div>
+          <div class="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:gap-2.5">
+            <div class="bg-white/10 backdrop-blur-xs border border-white/15 rounded-xl px-3 py-2 text-center">
+              <div class="text-[10px] uppercase tracking-wider text-indigo-200 font-semibold">Streak</div>
+              <div class="text-base font-extrabold text-amber-400"><span id="hero-streak">0</span>d</div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-xs border border-white/15 rounded-xl px-3 py-2 text-center">
+              <div class="text-[10px] uppercase tracking-wider text-indigo-200 font-semibold">Answers</div>
+              <div class="text-base font-extrabold text-emerald-300"><span id="hero-answers-today">0</span><span class="text-[11px] font-medium text-indigo-200"> / <span id="hero-answers-total">0</span></span></div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-xs border border-white/15 rounded-xl px-3 py-2 text-center">
+              <div class="text-[10px] uppercase tracking-wider text-indigo-200 font-semibold">Total XP</div>
+              <div id="hero-total-xp" class="text-base font-extrabold">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily XP Bar -->
+        <div class="relative z-10 mt-4 pt-4 border-t border-white/10">
+          <div class="flex items-center justify-between text-xs font-semibold mb-1.5">
+            <span class="text-indigo-100">Daily XP Goal</span>
+            <span class="text-amber-300"><span id="today-xp-earned">0</span> / <span id="today-xp-target">150</span> XP</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-950/40 rounded-full overflow-hidden">
+            <div id="today-xp-bar" class="h-full bg-gradient-to-r from-amber-400 to-amber-300 rounded-full transition-all duration-500" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two-Column Workspace: Dual-Mode Timer + Daily Checklist -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+        <!-- Dual-Mode Focus & Mains Sprint Timer -->
+        <div class="lg:col-span-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+          <div class="flex items-center justify-between gap-2 mb-3.5">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                <i data-lucide="timer" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h2 class="font-bold text-sm leading-tight">Study & Mains Timer</h2>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Adds to Cohort Goal & Arena</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span id="timer-live-pill" class="hidden px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>LIVE
+              </span>
+              <button onclick="toggleTimerSound()" id="timer-sound-btn" title="Toggle Completion Chime" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 transition">
+                <i data-lucide="volume-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Mode Switcher -->
+          <div class="grid grid-cols-2 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 mb-3.5">
+            <button onclick="setTimerMode('focus')" id="tmode-focus" class="py-2 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs">
+              Deep Focus
+            </button>
+            <button onclick="setTimerMode('mains')" id="tmode-mains" class="py-2 rounded-lg text-xs font-bold transition text-slate-500 dark:text-slate-400">
+              Mains Sprint
+            </button>
+          </div>
+
+          <!-- Focus Presets -->
+          <div id="timer-presets-focus" class="grid grid-cols-3 gap-2 mb-3.5">
+            <button onclick="setTimerDuration(25)" id="dur-25" class="dur-btn py-2 rounded-xl text-xs font-bold border transition bg-indigo-600 text-white border-indigo-600">
+              25m <span class="block text-[10px] font-medium opacity-80">+40 XP</span>
+            </button>
+            <button onclick="setTimerDuration(50)" id="dur-50" class="dur-btn py-2 rounded-xl text-xs font-bold border transition bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700">
+              50m <span class="block text-[10px] font-medium opacity-75">+80 XP</span>
+            </button>
+            <button onclick="setTimerDuration(90)" id="dur-90" class="dur-btn py-2 rounded-xl text-xs font-bold border transition bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700">
+              90m <span class="block text-[10px] font-medium opacity-75">+150 XP</span>
+            </button>
+          </div>
+
+          <!-- Mains Sprint Presets -->
+          <div id="timer-presets-mains" class="hidden grid grid-cols-2 gap-2 mb-3.5">
+            <button onclick="setTimerDuration(7)" id="dur-7" class="dur-btn py-2 rounded-xl text-xs font-bold border transition bg-amber-500 text-slate-950 border-amber-500">
+              7m • 10-Marker <span class="block text-[10px] font-semibold opacity-80">+25 XP • +1 Ans</span>
+            </button>
+            <button onclick="setTimerDuration(10)" id="dur-10" class="dur-btn py-2 rounded-xl text-xs font-bold border transition bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700">
+              10m • 15-Marker <span class="block text-[10px] font-semibold opacity-75">+35 XP • +1 Ans</span>
+            </button>
+          </div>
+
+          <!-- Subject Selector -->
+          <div class="mb-4">
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Subject / Paper</label>
+            <select id="timer-subject-select" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="Prelims GS I">Prelims GS I (Polity / History / Econ)</option>
+              <option value="CSAT Practice">CSAT (Paper II)</option>
+              <option value="Current Affairs">Newspaper & Current Affairs</option>
+              <option value="GS I (Mains)">Mains GS I (History / Society / Geo)</option>
+              <option value="GS II (Mains)">Mains GS II (Polity / Gov / IR)</option>
+              <option value="GS III (Mains)">Mains GS III (Econ / Env / Sci-Tech)</option>
+              <option value="GS IV (Ethics)">Mains GS IV (Ethics & Case Studies)</option>
+              <option value="Essay Writing">Essay Paper</option>
+              <option value="Optional Subject">Optional Paper I & II</option>
+            </select>
+          </div>
+
+          <!-- Clock Face -->
+          <div class="py-5 px-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-center mb-4">
+            <div id="timer-mode-caption" class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1">Deep Focus Session</div>
+            <div id="timer-display" class="text-5xl font-extrabold tracking-tight tabular-nums">25:00</div>
+            <div class="w-3/4 mx-auto h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mt-3 overflow-hidden">
+              <div id="timer-progress-bar" class="h-full bg-indigo-600 rounded-full transition-all duration-1000" style="width:0%"></div>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="flex items-center gap-2">
+            <button id="timer-toggle-btn" onclick="toggleTimer()" class="flex-1 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-sm transition flex items-center justify-center gap-2">
+              <i data-lucide="play" class="w-4 h-4"></i><span>Start Focus</span>
+            </button>
+            <button onclick="resetTimer()" title="Reset Timer" class="py-3 px-3.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Daily Checklist Card -->
+        <div class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+           <div class="flex items-center justify-between gap-2 mb-3.5">
+            <div>
+              <h2 class="font-bold text-base">Daily Checklist</h2>
+              <p id="tasks-summary" class="text-xs text-slate-500 dark:text-slate-400">0 of 0 completed</p>
+            </div>
+            <button onclick="openTaskModal()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Task
+            </button>
+          </div>
+
+          <!-- Quick Presets -->
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 mb-3">
+            <button onclick="quickAddTask('Editorial & Newspaper Notes', 'CA', 30)" class="shrink-0 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-500/15 hover:text-indigo-700 dark:hover:text-indigo-300 text-xs font-semibold transition">
+              + Editorial <span class="text-amber-600 dark:text-amber-400 ml-0.5">+30</span>
+            </button>
+            <button onclick="quickAddTask('Laxmikanth Polity Revision', 'GS II', 30)" class="shrink-0 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-500/15 hover:text-indigo-700 dark:hover:text-indigo-300 text-xs font-semibold transition">
+              + Laxmikanth <span class="text-amber-600 dark:text-amber-400 ml-0.5">+30</span>
+            </button>
+            <button onclick="quickAddTask('Daily Mains Answer Writing (2 Qs)', 'GS III', 60)" class="shrink-0 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-500/15 hover:text-indigo-700 dark:hover:text-indigo-300 text-xs font-semibold transition">
+              + Answer Writing <span class="text-amber-600 dark:text-amber-400 ml-0.5">+60</span>
+            </button>
+            <button onclick="quickAddTask('CSAT Comprehension & Quant', 'CSAT', 30)" class="shrink-0 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-500/15 hover:text-indigo-700 dark:hover:text-indigo-300 text-xs font-semibold transition">
+              + CSAT <span class="text-amber-600 dark:text-amber-400 ml-0.5">+30</span>
+            </button>
+            <button onclick="quickAddTask('25 Prelims PYQs Analysis', 'GS I', 15)" class="shrink-0 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-500/15 hover:text-indigo-700 dark:hover:text-indigo-300 text-xs font-semibold transition">
+              + PYQs <span class="text-amber-600 dark:text-amber-400 ml-0.5">+15</span>
+            </button>
+          </div>
+
+          <!-- Filter Tabs -->
+          <div class="flex items-center gap-1.5 mb-3">
+            <button onclick="setTaskFilter('all')" id="tfilter-all" class="tfilter-btn px-3 py-1 rounded-lg text-xs font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">All</button>
+            <button onclick="setTaskFilter('pending')" id="tfilter-pending" class="tfilter-btn px-3 py-1 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">Pending</button>
+            <button onclick="setTaskFilter('completed')" id="tfilter-completed" class="tfilter-btn px-3 py-1 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">Completed</button>
+          </div>
+
+          <!-- List -->
+          <div id="daily-tasks-list" class="space-y-2.5"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: SYLLABUS + REVISION DECAY ==================== -->
+    <section id="view-syllabus" class="tab-view hidden space-y-5">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h1 class="text-xl font-extrabold tracking-tight">UPSC CSE Syllabus & Revision Decay</h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Spaced repetition flags revised topics after 7d, 21d, and 60d so active recall stays sharp.</p>
+          </div>
+          <div class="text-left sm:text-right">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Overall Mastery</div>
+            <div id="syl-overall-pct" class="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">0%</div>
+          </div>
+        </div>
+        <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-3">
+          <div id="syl-overall-bar" class="h-full bg-gradient-to-r from-indigo-600 to-emerald-500 rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="inline-flex p-1 rounded-xl bg-slate-200/70 dark:bg-slate-800">
+            <button onclick="setSyllabusExam('prelims')" id="syl-exam-prelims" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs">Prelims</button>
+            <button onclick="setSyllabusExam('mains')" id="syl-exam-mains" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-400">Mains</button>
+          </div>
+          <button onclick="toggleDueRevisionFilter()" id="syl-due-filter-btn" class="px-3.5 py-2.5 rounded-xl text-xs font-bold border border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10 text-amber-800 dark:text-amber-300 hover:bg-amber-100 flex items-center gap-1.5 transition">
+            <i data-lucide="clock-alert" class="w-3.5 h-3.5"></i>
+            <span>Due for Revision</span>
+            <span id="syl-due-count" class="px-1.5 rounded-full bg-amber-500 text-slate-950 text-[10px] font-extrabold">0</span>
+          </button>
+        </div>
+
+        <div class="relative flex-1 md:max-w-xs">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input id="syl-search" oninput="renderSyllabus()" type="text" placeholder="Search syllabus topics..." class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+      </div>
+
+      <div id="syllabus-container" class="space-y-3"></div>
+    </section>
+
+    <!-- ==================== TAB 3: NOTES, REMINDERS & MISTAKE LOG ==================== -->
+    <section id="view-notes" class="tab-view hidden space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight">Notes, Reminders & Mistake Log</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">100% private to your account — never shared with anyone in the Arena or Squad.</p>
+        </div>
+        <div class="inline-flex p-1 rounded-xl bg-slate-200/70 dark:bg-slate-800 self-start overflow-x-auto max-w-full">
+          <button onclick="setNotesSubTab('notes')" id="nsub-notes" class="px-3.5 py-2 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs shrink-0">Study Notes</button>
+          <button onclick="setNotesSubTab('reminders')" id="nsub-reminders" class="px-3.5 py-2 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-400 flex items-center gap-1.5 shrink-0">
+            Reminders <span id="nsub-rem-count" class="hidden px-1.5 rounded-full bg-rose-500 text-white text-[10px]">0</span>
+          </button>
+          <button onclick="setNotesSubTab('mistakes')" id="nsub-mistakes" class="px-3.5 py-2 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-400 shrink-0">Mistake Log</button>
+        </div>
+      </div>
+
+      <!-- SUB-TAB A: STUDY NOTES -->
+      <div id="panel-notes" class="space-y-4">
+        <div class="flex flex-col sm:flex-row gap-3">
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input id="notes-search" oninput="renderNotes()" type="text" placeholder="Search notes..." class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+          <button onclick="openNoteModal()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 shrink-0">
+            <i data-lucide="plus" class="w-4 h-4"></i> New Note
+          </button>
+        </div>
+        <div id="notes-tag-bar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1"></div>
+        <div id="notes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+
+      <!-- SUB-TAB B: REMINDERS -->
+      <div id="panel-reminders" class="hidden space-y-4">
+          <div class="flex flex-col sm:flex-row gap-3">
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input id="notes-search" oninput="renderNotes()" type="text" placeholder="Search notes..." class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+          <button onclick="openNoteModal()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 shrink-0">
+            <i data-lucide="plus" class="w-4 h-4"></i> New Note
+          </button>
+        </div>
+        <div id="notes-tag-bar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1"></div>
+        <div id="notes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+
+      <!-- SUB-TAB B: REMINDERS -->
+      <div id="panel-reminders" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Complete reminders on time for <span class="font-bold text-amber-600 dark:text-amber-400">+10 XP</span>.</div>
+          <button onclick="openReminderModal()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs flex items-center gap-1.5">
+            <i data-lucide="bell-plus" class="w-4 h-4"></i> Add Reminder
+          </button>
+        </div>
+        <div id="reminders-list" class="space-y-3"></div>
+      </div>
+
+      <!-- SUB-TAB C: PYQ / MOCK MISTAKE LOG -->
+      <div id="panel-mistakes" class="hidden space-y-4">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="mistake-err-filter" onchange="renderMistakes()" class="rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-semibold">
+              <option value="All">All Error Types</option>
+              <option value="Conceptual Gap">Conceptual Gap</option>
+              <option value="Silly Mistake">Silly Mistake</option>
+              <option value="Elimination Error">Elimination Error</option>
+              <option value="Factual Recall">Factual Recall</option>
+            </select>
+            <select id="mistake-sub-filter" onchange="renderMistakes()" class="rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-semibold">
+              <option value="All">All Subjects</option>
+              <option value="Polity">Polity</option>
+              <option value="Economy">Economy</option>
+              <option value="History">History & Culture</option>
+              <option value="Geography">Geography</option>
+              <option value="Environment">Environment</option>
+              <option value="Sci-Tech">Sci-Tech</option>
+              <option value="CSAT">CSAT</option>
+              <option value="Current Affairs">Current Affairs</option>
+            </select>
+          </div>
+          <button onclick="openMistakeModal()" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 shrink-0">
+            <i data-lucide="alert-circle" class="w-4 h-4"></i> Log Mistake
+          </button>
+        </div>
+        <div id="mistakes-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: STUDY ARENA (WAVE 2 COHORT FEATURES) ==================== -->
+    <section id="view-arena" class="tab-view hidden space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight flex items-center gap-2">
+            <i data-lucide="trophy" class="w-5 h-5 text-amber-500"></i> Study Arena
+          </h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Weekly topper race, shared focus hours goal, live presence & streak rescue nudges.</p>
+        </div>
+        <div class="inline-flex p-1 rounded-xl bg-slate-200/70 dark:bg-slate-800 self-start">
+          <button onclick="setArenaScope('global')" id="arena-global-btn" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs">Global</button>
+          <button onclick="setArenaScope('squad')" id="arena-squad-btn" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-400">My Squad</button>
+        </div>
+      </div>
+
+      <!-- Wave 2: Topper of the Week Spotlight + Shared Cohort Goal Bar -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- Crowned Topper of the Week -->
+        <div id="weekly-topper-card" class="lg:col-span-5 rounded-2xl bg-gradient-to-br from-amber-500 via-amber-500 to-orange-600 text-slate-950 p-5 shadow-md flex flex-col justify-between relative overflow-hidden">
+          <div class="absolute -right-6 -bottom-6 opacity-15 pointer-events-none">
+            <i data-lucide="crown" class="w-32 h-32"></i>
+          </div>
+          <div class="relative z-10 flex items-center justify-between">
+            <span class="px-2.5 py-1 rounded-full bg-slate-950/15 text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1">
+              <i data-lucide="crown" class="w-3.5 h-3.5"></i> Topper of the Week
+            </span>
+            <span id="arena-week-badge" class="text-[11px] font-extrabold opacity-80">Week --</span>
+          </div>
+          <div class="relative z-10 mt-4">
+            <div id="topper-name" class="text-2xl font-extrabold tracking-tight truncate">Claim the Crown!</div>
+            <div id="topper-meta" class="text-xs font-bold opacity-85 mt-1">Earn Weekly XP to lead the cohort</div>
+          </div>
+        </div>
+
+        <!-- Shared Cohort Weekly Focus Goal Bar -->
+        <div class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="users" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></i>
+                <h2 id="cohort-goal-title" class="font-extrabold text-sm sm:text-base">Shared Cohort Weekly Goal</h2>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Every completed Focus or Mains timer adds minutes to our shared bar.</p>
+            </div>
+            <button onclick="openCohortGoalModal()" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-600 dark:text-slate-300 shrink-0">
+              Edit Target
+            </button>
+          </div>
+          <div class="mt-4">
+            <div class="flex items-end justify-between mb-1.5">
+              <div>
+                <span id="cohort-hours-logged" class="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">0.0</span>
+                <span class="text-xs font-bold text-slate-500"> / <span id="cohort-hours-target">150</span> Focus Hours</span>
+              </div>
+              <span id="cohort-goal-pct" class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">0%</span>
+            </div>
+            <div class="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div id="cohort-goal-bar" class="h-full bg-gradient-to-r from-indigo-600 via-violet-500 to-emerald-500 rounded-full transition-all duration-500" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Squad Banner -->
+      <div id="squad-banner" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-xs"></div>
+
+      <!-- Live Presence + Streak Rescue Nudges -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <!-- Studying Right Now Feed -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <h2 class="font-bold text-sm">Studying Right Now</h2>
+              <span id="arena-live-count" class="px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold">0 live</span>
+            </div>
+            <button onclick="switchTab('today')" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Start Timer →</button>
+          </div>
+          <div id="arena-live-feed" class="space-y-2.5"></div>
+        </div>
+
+        <!-- Wave 2: Streak Rescue Nudges -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <i data-lucide="bell-electric" class="w-4 h-4 text-amber-500"></i>
+              <h2 class="font-bold text-sm">Streak Rescue Nudges</h2>
+            </div>
+            <span id="nudge-urgency-pill" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-500">Check-in</span>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-3">Aspirants who haven't completed a task today yet. Send a friendly nudge!</p>
+          <div id="streak-rescue-list" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <h2 id="lb-heading" class="font-bold text-base">Global Leaderboard</h2>
+          <div class="flex items-center gap-1.5">
+            <button onclick="setLbSort('weeklyXp')" id="lbsort-weeklyXp" class="lbsort-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">Weekly XP</button>
+            <button onclick="setLbSort('totalXp')" id="lbsort-totalXp" class="lbsort-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">Total XP</button>
+            <button onclick="setLbSort('streak')" id="lbsort-streak" class="lbsort-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">Streak</button>
+          </div>
+        </div>
+        <div id="leaderboard-list" class="space-y-2.5"></div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: PROFILE & REWARDS ==================== -->
+    <section id="view-profile" class="tab-view hidden space-y-5">
+
+      <!-- Wave 2: Account & Cross-Device Sync + PWA Install Cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- Account Sync Card -->
+        <div class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                <i data-lucide="cloud" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h2 class="font-extrabold text-sm sm:text-base">Account & Cross-Device Sync</h2>
+                <p id="auth-status-sub" class="text-xs text-slate-500 dark:text-slate-400">Guest Session — Sign in to keep your streak across phone & laptop.</p>
+              </div>
+            </div>
+            <span id="auth-status-badge" class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 shrink-0">Guest</span>
+          </div>
+
+          <!-- Signed-Out / Guest Controls -->
+          <div id="auth-guest-controls" class="space-y-3 mt-4">
+            <div class="flex flex-wrap gap-2">
+              <button onclick="signInWithGoogle()" class="flex-1 min-w-[160px] py-2.5 px-4 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-950 text-xs font-extrabold flex items-center justify-center gap-2 hover:opacity-90 transition">
+                <i data-lucide="chrome" class="w-4 h-4"></i> Continue with Google
+              </button>
+              <button onclick="openEmailAuthModal()" class="flex-1 min-w-[160px] py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold flex items-center justify-center gap-2 transition">
+                <i data-lucide="mail" class="w-4 h-4"></i> Email & Password
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Linking an account preserves all your current tasks, notes, syllabus progress, and XP.</p>
+          </div>
+
+          <!-- Signed-In Controls -->
+          <div id="auth-signedin-controls" class="hidden mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+            <div class="text-xs">
+              <span class="text-slate-400 font-semibold">Synced as:</span>
+              <span id="auth-user-email" class="font-bold text-slate-800 dark:text-slate-200 ml-1">aspirant@example.com</span>
+            </div>
+            <button onclick="handleSignOut()" class="px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-100 text-xs font-bold transition">
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+        <!-- PWA Install Card -->
+        <div class="lg:col-span-5 bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-2xl p-5 shadow-md flex flex-col justify-between gap-3">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+              <i data-lucide="smartphone" class="w-5 h-5 text-amber-300"></i>
+            </div>
+            <div>
+              <h2 class="font-extrabold text-sm sm:text-base">Install Sankalp App</h2>
+              <p class="text-xs text-indigo-200/90 mt-0.5">Add to your Home Screen for full-screen focus & instant 1-tap access.</p>
+            </div>
+          </div>
+          <div>
+            <button id="pwa-install-btn" onclick="triggerPwaInstall()" class="w-full py-2.5 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold transition flex items-center justify-center gap-2">
+              <i data-lucide="download" class="w-4 h-4"></i> Install App
+            </button>
+            <p id="pwa-fallback-hint" class="text-[11px] text-indigo-200/80 mt-2 leading-snug">
+              iOS Safari: Tap <strong>Share</strong> → <strong>Add to Home Screen</strong>. Android Chrome: Menu (⋮) → <strong>Install App</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rank & Coins Summary -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gradient-to-br from-indigo-700 to-indigo-950 text-white rounded-2xl p-5 shadow-md">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-indigo-200">Aspirant Rank</div>
+              <div id="rew-rank-title" class="text-xl font-extrabold mt-0.5">Aspirant</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-white/15 flex flex-col items-center justify-center">
+              <span class="text-[10px] font-bold text-indigo-200 leading-none">LVL</span>
+              <span id="rew-level" class="text-lg font-extrabold leading-tight">1</span>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div class="flex justify-between text-xs font-semibold text-indigo-200 mb-1">
+              <span><span id="rew-xp">0</span> Total XP</span>
+              <span id="rew-next-lvl">250 XP to Lvl 2</span>
+            </div>
+            <div class="w-full h-2 bg-slate-950/40 rounded-full overflow-hidden">
+              <div id="rew-lvl-bar" class="h-full bg-amber-400 rounded-full transition-all duration-500" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Study Coins Balance</div>
+              <div class="text-3xl font-extrabold text-amber-500 flex items-center gap-2 mt-1">
+                <i data-lucide="coins" class="w-7 h-7"></i>
+                <span id="rew-coins">0</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-center">
+              <div class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800">
+                <div class="text-[10px] font-bold text-slate-400 uppercase">Answers</div>
+                <div id="stat-answers" class="text-sm font-extrabold text-indigo-600 dark:text-indigo-400">0</div>
+              </div>
+              <div class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800">
+                <div class="text-[10px] font-bold text-slate-400 uppercase">Mastered</div>
+                <div id="stat-topics" class="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">0</div>
+              </div>
+            </div>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-3">Redeem Study Coins for Streak Freezes or personal rewards without reducing your XP.</p>
+        </div>
+      </div>
+
+      <!-- Official Pinned Streak Freeze Store Item -->
+      <div class="bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-950/40 dark:to-indigo-950/40 rounded-2xl border border-sky-200 dark:border-sky-800/60 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-start sm:items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-sky-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-sky-500/25">
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h2 class="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">1-Day Streak Freeze</h2>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-600 text-white">OFFICIAL</span>
+              <span id="freeze-owned-pill" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white dark:bg-slate-900 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Owned: 0 / 3</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Automatically saves your daily streak if you miss 1 full day due to travel, illness, or rest.</p>
+          </div>
+        </div>
+        <button id="buy-freeze-btn" onclick="buyStreakFreeze()" class="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-extrabold shadow-sm shrink-0 transition flex items-center justify-center gap-1.5">
+          <i data-lucide="coins" class="w-3.5 h-3.5 text-amber-300"></i> Buy for 150 Coins
+        </button>
+      </div>
+
+      <!-- Personal Reward Shop -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="font-bold text-base">Personal Reward Shop</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Private treats & breaks you can unlock with Study Coins.</p>
+          </div>
+          <button onclick="openRewardModal()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Custom Reward
+          </button>
+        </div>
+        <div id="rewards-shop-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        <div id="redemption-history-wrap" class="hidden mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Recent Redemptions</div>
+          <div id="redemption-history-list" class="flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+
+      <!-- 8 Unlockable Achievement Badges -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="font-bold text-base">Achievement Badges</h2>
+            <p id="badges-count" class="text-xs text-slate-500 dark:text-slate-400">0 of 8 unlocked</p>
+          </div>
+        </div>
+        <div id="badges-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+      </div>
+
+      <!-- Profile Settings -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+        <h2 class="font-bold text-base mb-4">Aspirant Profile & Settings</h2>
+        <form onsubmit="saveProfileSettings(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Display Name</label>
+            <input id="prof-name" type="text" maxlength="30" required class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Optional Subject</label>
+            <input id="prof-optional" type="text" maxlength="40" placeholder="e.g., PSIR, Sociology, Geography" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Daily XP Target</label>
+            <input id="prof-target-xp" type="number" min="30" max="1000" step="10" required class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+          <div class="flex items-end gap-2">
+            <button type="button" onclick="toggleDarkMode()" class="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition">
+              <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+              <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+              <span>Theme</span>
+            </button>
+            <button type="button" onclick="openModal('modal-squad')" class="flex-1 py-2.5 px-3 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="users" class="w-4 h-4"></i>
+              <span id="prof-squad-btn-lbl">Squad</span>
+            </button>
+          </div>
+          <div class="sm:col-span-2 flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="text-xs text-slate-500 dark:text-slate-400 break-all">
+              <span class="font-semibold">Aspirant UID:</span>
+              <code id="profile-uid" class="ml-1 px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[11px] select-all">local-session</code>
+              <button type="button" onclick="copyText(document.getElementById('profile-uid').textContent, 'Aspirant UID copied!')" class="ml-1.5 text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Copy</button>
+            </div>
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition">Save Settings</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+   <!-- Mobile Bottom Navigation Bar (Today, Syllabus, Notes, Arena, Profile) -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-2 py-1.5">
+    <div class="grid grid-cols-5 gap-1">
+      <button data-tab="today" class="mob-nav-btn flex flex-col items-center py-1.5 rounded-xl text-[10px] font-bold transition">
+        <i data-lucide="calendar-check" class="w-5 h-5 mb-0.5"></i><span>Today</span>
+      </button>
+      <button data-tab="syllabus" class="mob-nav-btn relative flex flex-col items-center py-1.5 rounded-xl text-[10px] font-bold transition">
+        <i data-lucide="book-open" class="w-5 h-5 mb-0.5"></i><span>Syllabus</span>
+        <span id="mob-due-dot" class="hidden absolute top-1 right-4 w-2 h-2 rounded-full bg-amber-500"></span>
+      </button>
+      <button data-tab="notes" class="mob-nav-btn relative flex flex-col items-center py-1.5 rounded-xl text-[10px] font-bold transition">
+        <i data-lucide="notebook-pen" class="w-5 h-5 mb-0.5"></i><span>Notes</span>
+        <span id="mob-rem-dot" class="hidden absolute top-1 right-4 w-2 h-2 rounded-full bg-rose-500"></span>
+      </button>
+      <button data-tab="arena" class="mob-nav-btn relative flex flex-col items-center py-1.5 rounded-xl text-[10px] font-bold transition">
+        <i data-lucide="trophy" class="w-5 h-5 mb-0.5"></i><span>Arena</span>
+        <span id="mob-live-dot" class="hidden absolute top-1 right-4 w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      </button>
+      <button data-tab="profile" class="mob-nav-btn flex flex-col items-center py-1.5 rounded-xl text-[10px] font-bold transition">
+        <i data-lucide="user-circle" class="w-5 h-5 mb-0.5"></i><span>Profile</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Wave 2: Email & Password Auth Modal -->
+  <div id="modal-email-auth" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="animate-modal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 w-full max-w-sm p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-base">Email Account Sync</h3>
+        <button onclick="closeModal('modal-email-auth')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="grid grid-cols-2 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 mb-4">
+        <button type="button" onclick="setEmailAuthMode('signup')" id="eauth-tab-signup" class="py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs">Sign Up / Link</button>
+        <button type="button" onclick="setEmailAuthMode('signin')" id="eauth-tab-signin" class="py-1.5 rounded-lg text-xs font-bold text-slate-500">Sign In</button>
+      </div>
+      <form onsubmit="submitEmailAuth(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Email Address</label>
+          <input id="eauth-email" type="email" required placeholder="aspirant@example.com" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Password (min 6 chars)</label>
+          <input id="eauth-pass" type="password" minlength="6" required placeholder="••••••••" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <p id="eauth-err" class="hidden text-xs font-semibold text-rose-500"></p>
+        <button id="eauth-submit-btn" type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition">Create & Sync Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Wave 2: Edit Cohort Goal Modal -->
+  <div id="modal-cohort-goal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="animate-modal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 w-full max-w-sm p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-base">Edit Weekly Cohort Goal</h3>
+        <button onclick="closeModal('modal-cohort-goal')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="saveCohortGoalTarget(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Collective Weekly Focus Hours Target</label>
+          <input id="cohort-goal-in" type="number" min="5" max="5000" step="5" value="150" required class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 text-sm font-bold" />
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeModal('modal-cohort-goal')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white">Save Goal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Exam Countdown Modal -->
+  <div id="modal-countdown" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="animate-modal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 w-full max-w-sm p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-base">Customize Exam Dates</h3>
+        <button onclick="closeModal('modal-countdown')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="saveExamDates(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">UPSC Prelims Date</label>
+          <input id="cd-input-prelims" type="date" required class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">UPSC Mains Date</label>
+          <input id="cd-input-mains" type="date" required class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('modal-countdown')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white">Save Dates</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add/Edit Task Modal -->
+  <div id="modal-task" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="animate-modal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="modal-task-title" class="font-bold text-base">Add Daily Task</h3>
+        <button onclick="closeModal('modal-task')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="submitTaskForm(event)" class="space-y-4">
+        <input type="hidden" id="task-edit-id" />
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Task Description</label>
+          <input id="task-title-in" type="text" required placeholder="e.g., Revise Parliament Chapter & 20 PYQs" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 text-sm" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Paper Tag</label>
+            <select id="task-cat-in" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2.5 text-sm">
+              <option value="GS I">GS I</option><option value="GS II">GS II</option><option value="GS III">GS III</option>
+              <option value="GS IV">GS IV</option><option value="CSAT">CSAT</option><option value="Essay">Essay</option>
+              <option value="Optional">Optional</option><option value="CA">CA</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">XP Tier</label>
+            <select id="task-xp-in" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2.5 text-sm">
+              <option value="15">Quick (+15 XP)</option>
+              <option value="30" selected>Standard (+30 XP)</option>
+              <option value="60">Deep Work (+60 XP)</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('modal-task')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Custom Syllabus Subtopic Modal -->
+  <div id="modal-subtopic" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="animate-modal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-base">Add Custom Subtopic</h3>
+        <button onclick="closeModal('modal-subtopic')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="submitSubtopic(event)" class="space-y-4">
+        <input type="hidden" id="subtopic-paper-id" />
+        <div id="subtopic-paper-lbl" class="text-xs font-bold text-indigo-600 dark:text-indigo-400"></div>
+        <input id="subtopic-name-in" type="text" required placeholder="Enter subtopic name..." class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 text-sm" />
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeModal('modal-subtopic')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add/Edit Study Note Modal -->
+  <div id="modal-note" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="animate-modal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="modal-note-title" class="font-bold text-base">New Study Note</h3>
+        <button onclick="closeModal('modal-note')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="submitNoteForm(event)" class="space-y-3.5">
+        <input type="hidden" id="note-edit-id" />
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <input id="note-title-in" type="text" required placeholder="Note title..." class="sm:col-span-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 text-sm" />
+          <select id="note-tag-in" class="rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2.5 text-sm">
+            <option value="Prelims">Prelims</option><option value="GS I">GS I</option><option value="GS II">GS II</option>
+            <option value="GS III">GS III</option><option value="GS IV">GS IV</option><option value="Optional">Optional</option>
+            <option value="CA">CA</option><option value="Misc">Misc</option>
+          </select>
+        </div>
+        <textarea id="note-content-in" rows="6" required placeholder="Key facts, articles, committees, quotes..." class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 text-sm"></textarea>
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeModal('modal-note')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white">Save Note</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Mistake Log Modal -->
+  <div id="modal-mistake" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="animate-modal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-base">Log PYQ / Mock Mistake</h3>
+        <button onclick="closeModal('modal-mistake')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="submitMistakeForm(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Question / Topic</label>
+          <input id="mis-topic-in" type="text" required placeholder="e.g., Money Bill vs Financial Bill Art. 117(1)" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 text-sm" />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Subject</label>
+            <select id="mis-sub-in" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-2 text-xs font-semibold">
+              <option value="Polity">Polity</option><option value="Economy">Economy</option><option value="History">History</option>
+              <option value="Geography">Geography</option><option value="Environment">Environment</option><option value="Sci-Tech">Sci-Tech</option>
+              <option value="CSAT">CSAT</option><option value="Current Affairs">Current Affairs</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Error Type</label>
+            <select id="mis-err-in" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-2 text-xs font-semibold">
+              <option value="Conceptual Gap">Conceptual Gap</option>
+              <option value="Silly Mistake">Silly Mistake</option>
+              <option value="Elimination Error">Elimination Error</option>
+              <option value="Factual Recall">Factual Recall</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Source</label>
+            <input id="mis-src-in" type="text" placeholder="Prelims PYQ" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-2 text-xs font-semibold" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Correction / Key Takeaway</label>
+          <textarea id="mis-fix-in" rows="3" required placeholder="Exact concept to remember next time..." class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2 text-sm"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" onclick="closeModal('modal-mistake')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-rose-600 text-white">Save Mistake</button>
+        </div>
+      </form>
+    </div>
+              </div>
+
+  <!-- Add Reminder Modal -->
+  <div id="modal-reminder" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="animate-modal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-base">Schedule Reminder</h3>
+        <button onclick="closeModal('modal-reminder')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="submitReminderForm(event)" class="space-y-4">
+        <input id="rem-title-in" type="text" required placeholder="e.g., Full-Length Mock Test #3" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 text-sm" />
+        <div class="grid grid-cols-2 gap-3">
+          <input id="rem-dt-in" type="datetime-local" required class="rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-semibold" />
+          <select id="rem-prio-in" class="rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-semibold">
+            <option value="high">High Priority</option>
+            <option value="medium" selected>Medium Priority</option>
+            <option value="low">Low Priority</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeModal('modal-reminder')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Squad Modal -->
+  <div id="modal-squad" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="animate-modal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-base">Study Squads</h3>
+        <button onclick="closeModal('modal-squad')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="space-y-4">
+        <form onsubmit="joinSquad(event)" class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 space-y-2.5">
+          <div class="text-xs font-bold uppercase text-indigo-600 dark:text-indigo-400">Join with 6-Char Code</div>
+          <div class="flex gap-2">
+            <input id="sq-join-in" type="text" maxlength="6" required placeholder="IAS27K" class="flex-1 uppercase font-mono tracking-widest rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm font-bold" />
+            <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold">Join</button>
+          </div>
+        </form>
+        <form onsubmit="createSquad(event)" class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 space-y-2.5">
+          <div class="text-xs font-bold uppercase text-amber-600 dark:text-amber-400">Create New Squad</div>
+          <input id="sq-create-in" type="text" maxlength="30" required placeholder="e.g., Delhi Aspirants 2027" class="w-full rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm" />
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-950 text-xs font-bold">Create Squad</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Reward Modal -->
+  <div id="modal-reward" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="animate-modal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-base">Add Personal Reward</h3>
+        <button onclick="closeModal('modal-reward')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="submitCustomReward(event)" class="space-y-4">
+        <input id="rew-name-in" type="text" required placeholder="e.g., Guilt-free Coffee & Pastry" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 text-sm" />
+        <div class="grid grid-cols-2 gap-3">
+          <input id="rew-cost-in" type="number" min="10" max="5000" step="10" value="100" required class="rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm" />
+          <input id="rew-emoji-in" type="text" maxlength="4" value="☕" class="rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm text-center" />
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeModal('modal-reward')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950">Add Reward</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Confirm Modal -->
+  <div id="modal-confirm" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="animate-modal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 w-full max-w-sm p-5 shadow-2xl">
+      <h3 id="confirm-title" class="font-bold text-base">Confirm</h3>
+      <p id="confirm-msg" class="text-xs text-slate-500 dark:text-slate-400 mt-1.5"></p>
+      <div class="flex justify-end gap-2 mt-5">
+        <button onclick="closeModal('modal-confirm')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
+        <button id="confirm-ok" class="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 text-white">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== APPLICATION SCRIPT ==================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import {
+      getAuth, signInAnonymously, signInWithCustomToken, signOut,
+      GoogleAuthProvider, signInWithPopup, linkWithPopup,
+      EmailAuthProvider, linkWithCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc,
+      collection, onSnapshot, increment
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // =========================================================================
+    // 1. PWA MANIFEST INJECTION & INSTALL PROMPT (WAVE 2)
+    // =========================================================================
+
+    let deferredPwaPrompt = null;
+
+    (function injectPwaManifest() {
+      try {
+        const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#312e81"/><path d="M128 368h256v32H128zm32-160h32v128h-32zm80 0h32v128h-32zm80 0h32v128h-32zM256 104l144 72v24H112v-24z" fill="#fbbf24"/></svg>`;
+        const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
+        const manifest = {
+          name: 'Sankalp UPSC — Daily Checklist & Study Arena',
+          short_name: 'Sankalp UPSC',
+          start_url: '.',
+          display: 'standalone',
+          background_color: '#0f172a',
+          theme_color: '#312e81',
+          icons: [{ src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }]
+        };
+        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = URL.createObjectURL(blob);
+        document.head.appendChild(link);
+      } catch (e) {}
+    })();
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPwaPrompt = e;
+      const btn = document.getElementById('pwa-install-btn');
+      if (btn) btn.classList.add('ring-2', 'ring-amber-300');
+    });
+
+    window.triggerPwaInstall = async function () {
+      if (deferredPwaPrompt) {
+        deferredPwaPrompt.prompt();
+        const choice = await deferredPwaPrompt.userChoice;
+        if (choice.outcome === 'accepted') showToast('🎉 Sankalp UPSC installed!', 'success');
+        deferredPwaPrompt = null;
+      } else {
+        showToast('Use your browser menu → "Add to Home Screen" or "Install App".', 'info');
+      }
+    };
+
+    // =========================================================================
+    // 2. STATIC CATALOGS: SYLLABUS, REWARDS, 8 BADGES & DATE/WEEK HELPERS
+    // =========================================================================
+
+    const SYLLABUS_PAPERS = [
+      {
+        id: 'pre-gs1', exam: 'prelims', name: 'Prelims GS Paper I', sub: '200 Marks • General Studies',
+        topics: [
+          { id: 'p1-1', name: 'Current Events of National & International Importance' },
+          { id: 'p1-2', name: 'Ancient & Medieval History & Indian Culture' },
+          { id: 'p1-3', name: 'Modern Indian History & National Movement' },
+          { id: 'p1-4', name: 'Indian & World Geography' },
+          { id: 'p1-5', name: 'Indian Polity, Constitution & Governance' },
+          { id: 'p1-6', name: 'Economic & Social Development' },
+          { id: 'p1-7', name: 'Environment, Ecology, Biodiversity & Climate' },
+          { id: 'p1-8', name: 'General Science & Emerging Tech' }
+        ]
+      },
+      {
+        id: 'pre-csat', exam: 'prelims', name: 'Prelims CSAT (Paper II)', sub: 'Qualifying 33% • Aptitude',
+        topics: [
+          { id: 'p2-1', name: 'Reading Comprehension' },
+          { id: 'p2-2', name: 'Logical Reasoning & Analytical Ability' },
+          { id: 'p2-3', name: 'Basic Numeracy & Number System' },
+          { id: 'p2-4', name: 'Data Interpretation & Sufficiency' }
+        ]
+      },
+      {
+        id: 'm-essay', exam: 'mains', name: 'Essay Paper', sub: '250 Marks • 2 Essays',
+        topics: [
+          { id: 'me-1', name: 'Philosophical & Abstract Essay Practice' },
+          { id: 'me-2', name: 'Socio-Economic, Governance & IR Essays' },
+          { id: 'me-3', name: 'Quotes, Anecdotes & Data Bank' }
+        ]
+      },
+      {
+        id: 'm-gs1', exam: 'mains', name: 'Mains GS I', sub: 'History, Society & Geography',
+        topics: [
+          { id: 'g1-1', name: 'Indian Art, Literature & Architecture' },
+          { id: 'g1-2', name: 'Modern History & Post-Independence India' },
+          { id: 'g1-3', name: 'World History (18th Century Onwards)' },
+          { id: 'g1-4', name: 'Indian Society, Diversity & Urbanization' },
+          { id: 'g1-5', name: 'Physical Geography & Natural Resources' }
+        ]
+      },
+      {
+        id: 'm-gs2', exam: 'mains', name: 'Mains GS II', sub: 'Polity, Governance & IR',
+        topics: [
+          { id: 'g2-1', name: 'Constitution, Amendments & Basic Structure' },
+          { id: 'g2-2', name: 'Federalism, Parliament, Executive & Judiciary' },
+          { id: 'g2-3', name: 'Governance, E-Governance & Civil Services' },
+          { id: 'g2-4', name: 'Social Justice, Welfare Schemes & Health' },
+          { id: 'g2-5', name: 'International Relations & Global Groupings' }
+        ]
+      },
+      {
+        id: 'm-gs3', exam: 'mains', name: 'Mains GS III', sub: 'Economy, Env, Sci-Tech & Security',
+        topics: [
+          { id: 'g3-1', name: 'Indian Economy, Budgeting & Inclusive Growth' },
+          { id: 'g3-2', name: 'Agriculture, MSP, PDS & Infrastructure' },
+          { id: 'g3-3', name: 'Science & Tech (Space, AI, Biotech, IPR)' },
+          { id: 'g3-4', name: 'Environment Conservation & Disaster Mgmt' },
+          { id: 'g3-5', name: 'Internal Security, Cyber & Border Mgmt' }
+        ]
+      },
+      {
+        id: 'm-gs4', exam: 'mains', name: 'Mains GS IV (Ethics)', sub: 'Ethics, Integrity & Case Studies',
+        topics: [
+          { id: 'g4-1', name: 'Ethics, Human Interface & Moral Thinkers' },
+          { id: 'g4-2', name: 'Attitude, Aptitude & Emotional Intelligence' },
+          { id: 'g4-3', name: 'Probity in Governance & Citizen Charters' },
+          { id: 'g4-4', name: 'Applied Ethics Case Studies (20+ Solved)' }
+        ]
+      },
+      {
+        id: 'm-opt1', exam: 'mains', name: 'Optional Paper I', sub: '250 Marks • Customize below',
+        topics: [
+          { id: 'o1-1', name: 'Paper I — Section A Core Foundations' },
+          { id: 'o1-2', name: 'Paper I — Section B Thinkers & PYQs' }
+        ]
+      },
+      {
+        id: 'm-opt2', exam: 'mains', name: 'Optional Paper II', sub: '250 Marks • Customize below',
+        topics: [
+          { id: 'o2-1', name: 'Paper II — Section A Indian Context' },
+          { id: 'o2-2', name: 'Paper II — Section B Contemporary Issues' }
+        ]
+      }
+    ];
+
+    const STAGE_XP = [0, 20, 50, 100];
+    const DEFAULT_REWARDS = [
+      { id: 'r1', name: 'Guilt-free Coffee / Snack', cost: 80, emoji: '☕' },
+      { id: 'r2', name: '1 Episode of a Show', cost: 150, emoji: '🎬' },
+      { id: 'r3', name: '30m Gaming / Leisure', cost: 120, emoji: '🎮' }
+    ];
+
+    // Exact 8 Unlockable Achievement Badges
+    const BADGES = [
+      { id: 'first_focus', name: 'First Focus', desc: 'Complete 1 focus session', icon: 'timer', color: 'from-sky-500 to-indigo-500', check: (s) => (s.profile.focusSessionsCount || 0) >= 1 },
+      { id: 'streak_7', name: '7-Day Streak', desc: 'Maintain a 7-day streak', icon: 'flame', color: 'from-amber-500 to-orange-600', check: (s) => (s.profile.streak || 0) >= 7 },
+      { id: 'mains_scribe', name: 'Mains Scribe', desc: 'Write 5 Mains Sprint answers', icon: 'pen-tool', color: 'from-violet-500 to-purple-600', check: (s) => (s.profile.answersWrittenTotal || 0) >= 5 },
+      { id: 'revision_pro', name: 'Revision Pro', desc: 'Complete 3 spaced revisions', icon: 'brain', color: 'from-emerald-500 to-teal-600', check: (s) => (s.profile.totalRevisions || 0) >= 3 },
+      { id: 'mistake_master', name: 'Mistake Master', desc: 'Master 3 logged mistakes', icon: 'check-circle-2', color: 'from-rose-500 to-pink-600', check: (s) => s.mistakes.filter(m => m.mastered).length >= 3 },
+      { id: 'squad_player', name: 'Squad Player', desc: 'Join or create a Study Squad', icon: 'users', color: 'from-cyan-500 to-blue-600', check: (s) => Boolean(s.profile.squadCode) },
+      { id: 'weekly_champ', name: 'Weekly Champion', desc: 'Earn 300+ XP in a single week', icon: 'crown', color: 'from-amber-400 to-yellow-600', check: (s) => (s.profile.weeklyXp || 0) >= 300 },
+      { id: 'coin_collector', name: 'Coin Collector', desc: 'Hold 500+ Study Coins', icon: 'coins', color: 'from-indigo-500 to-fuchsia-600', check: (s) => (s.profile.coins || 0) >= 500 }
+    ];
+
+    const MS_PER_DAY = 86400000;
+
+    function getDateStr(offsetDays = 0) {
+      const d = new Date();
+      d.setDate(d.getDate() + offsetDays);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    // Strict ISO Week ID (YYYY-Www)
+    function getIsoWeekId() {
+      const d = new Date();
+      const target = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const dayNum = target.getUTCDay() || 7;
+      target.setUTCDate(target.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(target.getUTCFullYear(), 0, 1));
+      const weekNo = Math.ceil((((target - yearStart) / MS_PER_DAY) + 1) / 7);
+      return `${target.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+    }
+
+    function getRankTitle(xp) {
+      if (xp >= 5000) return 'LBSNAA Officer';
+      if (xp >= 2000) return 'Interview Panelist';
+      if (xp >= 750) return 'Mains Veteran';
+      if (xp >= 250) return 'Prelims Contender';
+      return 'Aspirant';
+    }
+
+    function getLevelInfo(xp) {
+      const level = Math.floor(xp / 250) + 1;
+      const rem = xp % 250;
+      return { level, nextNeeded: 250 - rem, pct: Math.min(100, Math.round((rem / 250) * 100)) };
+    }
+
+    function getRevisionDecayInfo(topicId) {
+      const stage = state.syllabus.stages[topicId] || 0;
+      if (stage < 3) return null;
+      const meta = (state.syllabus.revisions && state.syllabus.revisions[topicId]) || {};
+      const lastAt = meta.lastRevisedAt || Date.now();
+      const count = meta.revisionCount || 1;
+      const thresholdDays = count === 1 ? 7 : count === 2 ? 21 : 60;
+      const daysAgo = Math.max(0, Math.floor((Date.now() - lastAt) / MS_PER_DAY));
+      return { daysAgo, count, thresholdDays, isDue: daysAgo >= thresholdDays, daysUntilDue: Math.max(0, thresholdDays - daysAgo) };
+    }
+
+    // =========================================================================
+    // 3. APPLICATION STATE
+    // =========================================================================
+
+    function createDefaultProfile() {
+      return {
+        displayName: 'Aspirant',
+        optionalSubject: 'PSIR',
+        dailyTargetXp: 150,
+        totalXp: 0,
+        weeklyXp: 0,
+        weeklyFocusMinutes: 0,
+        weekKey: getIsoWeekId(),
+        todayXp: 0,
+        todayDate: getDateStr(0),
+        lastTaskDate: '',
+        coins: 0,
+        streak: 0,
+        streakFreezes: 0,
+        lastActiveDate: '',
+        focusSessionsCount: 0,
+        answersWrittenToday: 0,
+        answersWrittenTotal: 0,
+        totalRevisions: 0,
+        prelimsDate: '2027-05-23',
+        mainsDate: '2027-09-17',
+        squadCode: '',
+        unlockedBadges: [],
+        darkMode: false,
+        soundMuted: false
+      };
+    }
+
+    const state = {
+      activeTab: 'today',
+      taskFilter: 'all',
+      sylExam: 'prelims',
+      sylDueOnly: false,
+      openAcc: { 'pre-gs1': true, 'm-gs1': true },
+      notesSub: 'notes',
+      notesTag: 'All',
+      arenaScope: 'global',
+      lbSort: 'weeklyXp',
+      emailAuthMode: 'signup',
+      streakCheckDone: false,
+      dismissedReminders: new Set(),
+      dismissedNudgeAt: 0,
+      nudgedUidsToday: new Set(),
+
+      profile: createDefaultProfile(),
+      tasks: [],
+      syllabus: { stages: {}, maxAwarded: {}, revisions: {}, customTopics: {} },
+      notes: [],
+      mistakes: [],
+      reminders: [],
+      rewards: { items: [...DEFAULT_REWARDS], history: [] },
+      leaderboard: [],
+      squads: {},
+      globalCohortTargetHours: 150,
+
+      timer: {
+        mode: 'focus',
+        durationMins: 25,
+        remainingSecs: 25 * 60,
+        running: false,
+        intervalId: null,
+        subject: 'Prelims GS I'
+      }
+    };
+
+    let db = null, auth = null, currentUser = null;
+    let unsubscribes = [];
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'sankalp-upsc-8b59b';
+
+    const PRODUCTION_FIREBASE_CONFIG = {
+      apiKey: "AIzaSyA1caoa13w3jaP84WZGUBmllR99ajL9_pc",
+      authDomain: "sankalp-upsc-8b59b.firebaseapp.com",
+      projectId: "sankalp-upsc-8b59b",
+      storageBucket: "sankalp-upsc-8b59b.firebasestorage.app",
+      messagingSenderId: "53949659879",
+      appId: "1:53949659879:web:7c0b34f2dca07408e30042"
+    };
+
+    // =========================================================================
+    // 4. FIREBASE INIT, AUTH & REAL-TIME SYNC (RULES 1, 2, 3)
+    // =========================================================================
+
+    function clearListeners() {
+      unsubscribes.forEach(fn => { try { fn(); } catch (e) {} });
+      unsubscribes = [];
+    }
+
+    async function initFirebase() {
+      try {
+        const firebaseConfig = (typeof __firebase_config !== 'undefined' && __firebase_config)
+          ? (typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config)
+          : PRODUCTION_FIREBASE_CONFIG;
+
+        const app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await auth.authStateReady();
+          if (!auth.currentUser) {
+            await signInAnonymously(auth);
+          }
+        }
+        await bindSessionForUser(auth.currentUser);
+        finishLoading();
+      } catch (err) {
+        console.error('Firebase init fallback:', err);
+        finishLoading();
+      }
+    }
+
+    async function bindSessionForUser(user) {
+      clearListeners();
+      currentUser = user;
+      if (!currentUser || !db) return;
+
+      state.streakCheckDone = false;
+      state.profile = createDefaultProfile();
+      state.tasks = [];
+      state.syllabus = { stages: {}, maxAwarded: {}, revisions: {}, customTopics: {} };
+      state.notes = [];
+      state.mistakes = [];
+      state.reminders = [];
+      state.rewards = { items: [...DEFAULT_REWARDS], history: [] };
+
+      document.getElementById('profile-uid').textContent = currentUser.uid;
+      updateAuthUi();
+      await ensureProfileExists();
+      setupListeners();
+    }
+
+    function finishLoading() {
+      const el = document.getElementById('loading-screen');
+      if (el) {
+        el.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => el.remove(), 300);
+      }
+      renderAll();
+    }
+
+    async function ensureProfileExists() {
+      if (!currentUser || !db) return;
+      const ref = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'appData', 'profile');
+      const snap = await getDoc(ref);
+      const curWk = getIsoWeekId();
+
+      if (!snap.exists()) {
+        const defaultName = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : `Aspirant ${Math.floor(100 + Math.random() * 900)}`);
+        const initProf = { ...createDefaultProfile(), displayName: defaultName, weekKey: curWk, createdAt: Date.now() };
+        await setDoc(ref, initProf);
+        state.profile = initProf;
+        await syncPublicArena({
+          displayName: initProf.displayName,
+          totalXP: 0, weeklyXP: 0, weeklyFocusMinutes: 0, weekKey: curWk,
+          streak: 0, level: 1, squadCode: '', lastTaskDate: '',
+          isStudying: false, studyingSubject: '', studyingEndsAt: 0,
+          cheersCount: 0, answersWritten: 0
+        });
+      }
+    }
+
+    // Automatic Streak Protection + Weekly Reset check
+    async function checkStreakAndWeeklyReset() {
+      if (state.streakCheckDone) return;
+      state.streakCheckDone = true;
+
+      const p = state.profile;
+      const curWk = getIsoWeekId();
+      const patch = {};
+      let arenaPatch = null;
+
+      // 1. Weekly Leaderboard Reset if ISO week rolled over
+      if (p.weekKey !== curWk) {
+        patch.weekKey = curWk;
+        patch.weeklyXp = 0;
+        patch.weeklyFocusMinutes = 0;
+        arenaPatch = { weekKey: curWk, weeklyXP: 0, weeklyFocusMinutes: 0 };
+      }
+
+      // 2. Automatic 1-Day Streak Freeze
+      if (p.lastActiveDate && (p.streak || 0) > 0) {
+        const today = getDateStr(0);
+        const yest = getDateStr(-1);
+        const twoAgo = getDateStr(-2);
+        if (p.lastActiveDate !== today && p.lastActiveDate !== yest) {
+          if (p.lastActiveDate === twoAgo && (p.streakFreezes || 0) >= 1) {
+            patch.streakFreezes = p.streakFreezes - 1;
+            patch.lastActiveDate = yest;
+            showToast(`🛡️ Streak Freeze used! Your ${p.streak}-day streak is safe (${patch.streakFreezes} left).`, 'success');
+          } else {
+            patch.streak = 0;
+            arenaPatch = { ...(arenaPatch || {}), streak: 0 };
+          }
+        }
+      }
+
+      if (Object.keys(patch).length) await saveProfile(patch);
+      if (arenaPatch) await syncPublicArena(arenaPatch);
+    }
+
+    function setupListeners() {
+      if (!currentUser || !db) return;
+      const uid = currentUser.uid;
+
+      unsubscribes.push(onSnapshot(doc(db, 'artifacts', appId, 'users', uid, 'appData', 'profile'), (snap) => {
+        if (snap.exists()) {
+          const d = snap.data();
+          const today = getDateStr(0);
+          if (d.todayDate !== today) {
+            d.todayXp = 0;
+            d.answersWrittenToday = 0;
+            d.todayDate = today;
+          }
+          state.profile = { ...state.profile, ...d };
+          applyTheme(Boolean(state.profile.darkMode));
+          updateSoundIcon();
+          checkStreakAndWeeklyReset();
+          renderHeader();
+          renderToday();
+          renderProfileRewards();
+          renderArena();
+        }
+      }, (err) => console.error('Profile snap:', err)));
+
+      unsubscribes.push(onSnapshot(doc(db, 'artifacts', appId, 'users', uid, 'appData', 'syllabus'), (snap) => {
+        if (snap.exists()) {
+          const d = snap.data();
+          state.syllabus = {
+            stages: d.stages || {}, maxAwarded: d.maxAwarded || {},
+            revisions: d.revisions || {}, customTopics: d.customTopics || {}
+          };
+          renderSyllabus();
+          renderProfileRewards();
+        }
+      }, (err) => console.error('Syllabus snap:', err)));
+
+      unsubscribes.push(onSnapshot(doc(db, 'artifacts', appId, 'users', uid, 'appData', 'rewards'), (snap) => {
+        if (snap.exists()) {
+          const d = snap.data();
+          state.rewards = {
+            items: Array.isArray(d.items) && d.items.length ? d.items : [...DEFAULT_REWARDS],
+            history: Array.isArray(d.history) ? d.history : []
+          };
+          renderProfileRewards();
+        }
+      }, (err) => console.error('Rewards snap:', err)));
+
+      unsubscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', uid, 'dailyTasks'), (snap) => {
+        const arr = [];
+        snap.forEach(s => arr.push({ id: s.id, ...s.data() }));
+        arr.sort((a, b) => (a.completed === b.completed ? (b.createdAt || 0) - (a.createdAt || 0) : a.completed ? 1 : -1));
+        state.tasks = arr;
+        renderToday();
+      }, (err) => console.error('Tasks snap:', err)));
+
+      unsubscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', uid, 'notes'), (snap) => {
+        const arr = [];
+        snap.forEach(s => arr.push({ id: s.id, ...s.data() }));
+        arr.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+        state.notes = arr;
+        renderNotes();
+      }, (err) => console.error('Notes snap:', err)));
+
+      unsubscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', uid, 'mistakes'), (snap) => {
+        const arr = [];
+        snap.forEach(s => arr.push({ id: s.id, ...s.data() }));
+        arr.sort((a, b) => (a.mastered === b.mastered ? (b.createdAt || 0) - (a.createdAt || 0) : a.mastered ? 1 : -1));
+        state.mistakes = arr;
+        renderMistakes();
+        renderProfileRewards();
+      }, (err) => console.error('Mistakes snap:', err)));
+
+      unsubscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'users', uid, 'reminders'), (snap) => {
+        const arr = [];
+        snap.forEach(s => arr.push({ id: s.id, ...s.data() }));
+        arr.sort((a, b) => (a.dueTime || 0) - (b.dueTime || 0));
+        state.reminders = arr;
+        renderReminders();
+        checkDueReminders();
+      }, (err) => console.error('Reminders snap:', err)));
+
+      // Public Arena Leaderboard + Incoming Nudge Listener
+      unsubscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard'), (snap) => {
+        const arr = [];
+        snap.forEach(s => arr.push({ uid: s.id, ...s.data() }));
+        state.leaderboard = arr;
+
+        // Check if current user received a fresh Streak Rescue Nudge today
+        const me = arr.find(u => u.uid === uid);
+        if (me && me.lastNudge && me.lastNudge.date === getDateStr(0)) {
+          const nudgeAt = me.lastNudge.at || 0;
+          if (nudgeAt > state.dismissedNudgeAt && state.profile.lastTaskDate !== getDateStr(0)) {
+            document.getElementById('nudge-alert-text').textContent = `${me.lastNudge.fromName || 'A friend'} nudged you to protect your streak!`;
+            document.getElementById('nudge-alert-banner').classList.remove('hidden');
+          }
+        }
+        renderArena();
+      }, (err) => console.error('Leaderboard snap:', err)));
+
+      // Public Squads
+      unsubscribes.push(onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'squads'), (snap) => {
+        const map = {};
+        snap.forEach(s => { map[s.id] = s.data(); });
+        state.squads = map;
+        renderArena();
+      }, (err) => console.error('Squads snap:', err)));
+
+      // Public Global Cohort Goal Target
+      unsubscribes.push(onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'cohortMeta', 'global'), (snap) => {
+        if (snap.exists() && snap.data().targetHours) {
+          state.globalCohortTargetHours = snap.data().targetHours;
+          renderArena();
+        }
+      }, (err) => console.error('CohortMeta snap:', err)));
+    }
+
+    async function saveProfile(patch) {
+      state.profile = { ...state.profile, ...patch };
+      if (!currentUser || !db) return;
+      await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'appData', 'profile'), state.profile, { merge: true });
+    }
+
+    async function syncPublicArena(patch) {
+      if (!currentUser || !db) return;
+      const p = state.profile;
+      const curWk = getIsoWeekId();
+      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid), {
+        displayName: p.displayName,
+        totalXP: p.totalXp || 0,
+        weeklyXP: p.weekKey === curWk ? (p.weeklyXp || 0) : 0,
+        weeklyFocusMinutes: p.weekKey === curWk ? (p.weeklyFocusMinutes || 0) : 0,
+        weekKey: curWk,
+        streak: p.streak || 0,
+        level: getLevelInfo(p.totalXp || 0).level,
+        squadCode: p.squadCode || '',
+        lastTaskDate: p.lastTaskDate || '',
+        answersWritten: p.answersWrittenTotal || 0,
+        updatedAt: Date.now(),
+        ...patch
+      }, { merge: true });
+    }
+
+    // =========================================================================
+    // 5. ACCOUNT SYNC: GOOGLE & EMAIL/PASSWORD AUTH (WAVE 2)
+    // =========================================================================
+
+    function updateAuthUi() {
+      const isAnon = !currentUser || currentUser.isAnonymous;
+      const email = currentUser?.email || currentUser?.displayName || 'Synced Account';
+
+      const dot = document.getElementById('hdr-sync-dot');
+      const lbl = document.getElementById('hdr-sync-label');
+      const badge = document.getElementById('auth-status-badge');
+      const sub = document.getElementById('auth-status-sub');
+      const guestBox = document.getElementById('auth-guest-controls');
+      const signedBox = document.getElementById('auth-signedin-controls');
+
+      if (isAnon) {
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+        lbl.textContent = 'Guest';
+        badge.textContent = 'Guest';
+        badge.className = 'px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 shrink-0';
+        sub.textContent = 'Guest Session — Sign in to keep your streak across phone & laptop.';
+        guestBox.classList.remove('hidden');
+        signedBox.classList.add('hidden');
+      } else {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+        lbl.textContent = 'Synced';
+        badge.textContent = 'Cloud Synced';
+        badge.className = 'px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 shrink-0';
+        sub.textContent = 'Your private notes, syllabus, and streak sync automatically across devices.';
+        document.getElementById('auth-user-email').textContent = email;
+        guestBox.classList.add('hidden');
+        signedBox.classList.remove('hidden');
+      }
+    }
+
+    window.signInWithGoogle = async function () {
+      if (!auth) { showToast('Cloud auth unavailable in offline preview', 'info'); return; }
+      const provider = new GoogleAuthProvider();
+      try {
+        if (auth.currentUser && auth.currentUser.isAnonymous) {
+          try {
+            const res = await linkWithPopup(auth.currentUser, provider);
+            await bindSessionForUser(res.user);
+            showToast('✅ Google account linked! Progress preserved.', 'success');
+            return;
+          } catch (linkErr) {
+            if (linkErr.code === 'auth/credential-already-in-use' || linkErr.code === 'auth/email-already-in-use') {
+              const res = await signInWithPopup(auth, provider);
+              await bindSessionForUser(res.user);
+              showToast('✅ Signed in to your Google account!', 'success');
+              return;
+            }
+            throw linkErr;
+          }
+        } else {
+          const res = await signInWithPopup(auth, provider);
+          await bindSessionForUser(res.user);
+          showToast('✅ Signed in with Google!', 'success');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast(err.message || 'Google Sign-In cancelled or not enabled in Firebase Console.', 'info');
+      }
+    };
+
+    window.openEmailAuthModal = function () {
+      document.getElementById('eauth-email').value = '';
+      document.getElementById('eauth-pass').value = '';
+      document.getElementById('eauth-err').classList.add('hidden');
+      setEmailAuthMode('signup');
+      openModal('modal-email-auth');
+    };
+
+    window.setEmailAuthMode = function (mode) {
+      state.emailAuthMode = mode;
+      const su = document.getElementById('eauth-tab-signup');
+      const si = document.getElementById('eauth-tab-signin');
+      const btn = document.getElementById('eauth-submit-btn');
+      if (mode === 'signup') {
+        su.className = 'py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs';
+        si.className = 'py-1.5 rounded-lg text-xs font-bold text-slate-500';
+        btn.textContent = 'Create & Sync Account';
+      } else {
+        si.className = 'py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs';
+        su.className = 'py-1.5 rounded-lg text-xs font-bold text-slate-500';
+        btn.textContent = 'Sign In';
+      }
+    };
+
+    window.submitEmailAuth = async function (e) {
+      e.preventDefault();
+      if (!auth) { showToast('Cloud auth unavailable in offline preview', 'info'); return; }
+      const email = document.getElementById('eauth-email').value.trim();
+      const pass = document.getElementById('eauth-pass').value;
+      const errEl = document.getElementById('eauth-err');
+      errEl.classList.add('hidden');
+
+      try {
+        if (state.emailAuthMode === 'signup') {
+          if (auth.currentUser && auth.currentUser.isAnonymous) {
+            const cred = EmailAuthProvider.credential(email, pass);
+            const res = await linkWithCredential(auth.currentUser, cred);
+            await bindSessionForUser(res.user);
+            closeModal('modal-email-auth');
+            showToast('✅ Email linked! Progress synced to cloud.', 'success');
+          } else {
+            const res = await createUserWithEmailAndPassword(auth, email, pass);
+            await bindSessionForUser(res.user);
+            closeModal('modal-email-auth');
+            showToast('✅ Account created & synced!', 'success');
+          }
+        } else {
+          const res = await signInWithEmailAndPassword(auth, email, pass);
+          await bindSessionForUser(res.user);
+          closeModal('modal-email-auth');
+          showToast('✅ Signed in! Synced your UPSC workspace.', 'success');
+        }
+      } catch (err) {
+        errEl.textContent = err.message.replace('Firebase:', '').trim();
+        errEl.classList.remove('hidden');
+      }
+    };
+
+    window.handleSignOut = function () {
+      confirmAction('Sign Out', 'Sign out of this synced account? A fresh guest session will start on this browser.', async () => {
+        if (!auth) return;
+        await signOut(auth);
+        const res = await signInAnonymously(auth);
+        await bindSessionForUser(res.user);
+        showToast('Signed out. Now in Guest mode.', 'info');
+      });
+    };
+
+    // =========================================================================
+    // 6. GAMIFICATION ENGINE
+    // =========================================================================
+
+    async function awardXp(delta, reason = '', extraProfilePatch = {}, extraArenaPatch = {}) {
+      const prevLvl = getLevelInfo(state.profile.totalXp || 0).level;
+      const today = getDateStr(0);
+      const yest = getDateStr(-1);
+      const wk = getIsoWeekId();
+
+      const totalXp = Math.max(0, (state.profile.totalXp || 0) + delta);
+      const coins = Math.max(0, (state.profile.coins || 0) + delta);
+      const todayXp = state.profile.todayDate === today ? Math.max(0, (state.profile.todayXp || 0) + delta) : Math.max(0, delta);
+      const weeklyXp = state.profile.weekKey === wk ? Math.max(0, (state.profile.weeklyXp || 0) + delta) : Math.max(0, delta);
+
+      let streak = state.profile.streak || 0;
+      let lastActiveDate = state.profile.lastActiveDate || '';
+      if (delta > 0 && lastActiveDate !== today) {
+        streak = (lastActiveDate === yest) ? streak + 1 : 1;
+        lastActiveDate = today;
+      }
+
+      const patch = {
+        totalXp, coins, todayXp, todayDate: today,
+        weeklyXp, weekKey: wk, streak, lastActiveDate,
+        ...extraProfilePatch
+      };
+      state.profile = { ...state.profile, ...patch };
+
+      const unlocked = new Set(state.profile.unlockedBadges || []);
+      const freshBadges = [];
+      BADGES.forEach(b => {
+        if (!unlocked.has(b.id) && b.check(state)) {
+          unlocked.add(b.id);
+          freshBadges.push(b.name);
+        }
+      });
+      if (freshBadges.length) {
+        patch.unlockedBadges = Array.from(unlocked);
+        state.profile.unlockedBadges = patch.unlockedBadges;
+      }
+
+      await saveProfile(patch);
+      await syncPublicArena({
+        totalXP: totalXp, weeklyXP: weeklyXp, weekKey: wk,
+        streak, level: getLevelInfo(totalXp).level,
+        ...extraArenaPatch
+      });
+
+      if (delta > 0) showXpPop(`+${delta} XP • +${delta} Coins`, reason);
+      const newLvl = getLevelInfo(totalXp).level;
+      if (newLvl > prevLvl) showToast(`🎉 Level Up! Level ${newLvl} — ${getRankTitle(totalXp)}`, 'success');
+      freshBadges.forEach(n => showToast(`🏅 Badge Unlocked: ${n}!`, 'success'));
+
+      renderHeader();
+      renderToday();
+      renderProfileRewards();
+    }
+
+    // =========================================================================
+    // 7. TODAY: COUNTDOWN, DUAL-MODE TIMER & DAILY CHECKLIST
+    // =========================================================================
+
+    window.openCountdownModal = function () {
+      document.getElementById('cd-input-prelims').value = state.profile.prelimsDate || '2027-05-23';
+      document.getElementById('cd-input-mains').value = state.profile.mainsDate || '2027-09-17';
+      openModal('modal-countdown');
+    };
+
+    window.saveExamDates = async function (e) {
+      e.preventDefault();
+      closeModal('modal-countdown');
+      await saveProfile({
+        prelimsDate: document.getElementById('cd-input-prelims').value,
+        mainsDate: document.getElementById('cd-input-mains').value
+      });
+      renderToday();
+      showToast('Exam countdown dates updated!', 'success');
+    };
+
+    window.setTimerMode = function (mode) {
+      if (state.timer.running) { showToast('Pause timer before switching modes', 'info'); return; }
+      state.timer.mode = mode;
+      const fBtn = document.getElementById('tmode-focus');
+      const mBtn = document.getElementById('tmode-mains');
+      const fPres = document.getElementById('timer-presets-focus');
+      const mPres = document.getElementById('timer-presets-mains');
+      const cap = document.getElementById('timer-mode-caption');
+
+      if (mode === 'focus') {
+        fBtn.className = 'py-2 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs';
+        mBtn.className = 'py-2 rounded-lg text-xs font-bold transition text-slate-500 dark:text-slate-400';
+        fPres.classList.remove('hidden'); mPres.classList.add('hidden');
+        cap.textContent = 'Deep Focus Session';
+        cap.className = 'text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1';
+        setTimerDuration(25);
+      } else {
+        mBtn.className = 'py-2 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 shadow-2xs';
+        fBtn.className = 'py-2 rounded-lg text-xs font-bold transition text-slate-500 dark:text-slate-400';
+        mPres.classList.remove('hidden'); fPres.classList.add('hidden');
+        cap.textContent = 'Mains Answer-Writing Sprint';
+        cap.className = 'text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1';
+        setTimerDuration(7);
+      }
+    };
+
+    window.setTimerDuration = function (mins) {
+      if (state.timer.running) { showToast('Pause timer first', 'info'); return; }
+      state.timer.durationMins = mins;
+      state.timer.remainingSecs = mins * 60;
+      document.querySelectorAll('.dur-btn').forEach(b => {
+        b.className = 'dur-btn py-2 rounded-xl text-xs font-bold border transition bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700';
+      });
+      const active = document.getElementById(`dur-${mins}`);
+      if (active) {
+        active.className = state.timer.mode === 'mains'
+          ? 'dur-btn py-2 rounded-xl text-xs font-bold border transition bg-amber-500 text-slate-950 border-amber-500'
+          : 'dur-btn py-2 rounded-xl text-xs font-bold border transition bg-indigo-600 text-white border-indigo-600';
+      }
+      updateTimerClock();
+    };
+
+    window.toggleTimerSound = async function () {
+      const next = !state.profile.soundMuted;
+      await saveProfile({ soundMuted: next });
+      updateSoundIcon();
+      showToast(next ? 'Timer chime muted' : 'Timer chime enabled', 'info');
+    };
+
+    function updateSoundIcon() {
+      const btn = document.getElementById('timer-sound-btn');
+      if (!btn) return;
+      btn.innerHTML = state.profile.soundMuted
+        ? '<i data-lucide="volume-x" class="w-4 h-4 text-rose-500"></i>'
+        : '<i data-lucide="volume-2" class="w-4 h-4"></i>';
+      lucide.createIcons();
+    }
+
+    function playChime() {
+      if (state.profile.soundMuted) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioCtx();
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.11, ctx.currentTime + i * 0.14);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.14 + 0.55);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + i * 0.14);
+          osc.stop(ctx.currentTime + i * 0.14 + 0.6);
+        });
+      } catch (e) {}
+    }
+
+    window.toggleTimer = async function () {
+      const btn = document.getElementById('timer-toggle-btn');
+      const livePill = document.getElementById('timer-live-pill');
+
+      if (state.timer.running) {
+        clearInterval(state.timer.intervalId);
+        state.timer.running = false;
+        btn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i><span>Resume</span>';
+        livePill.classList.add('hidden');
+        lucide.createIcons();
+        await syncPublicArena({ isStudying: false, studyingSubject: '', studyingEndsAt: 0 });
+      } else {
+        state.timer.subject = document.getElementById('timer-subject-select').value;
+        state.timer.running = true;
+        btn.innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i><span>Pause</span>';
+        livePill.classList.remove('hidden');
+        lucide.createIcons();
+
+        const modeLabel = state.timer.mode === 'mains' ? `Mains Sprint: ${state.timer.subject}` : state.timer.subject;
+        await syncPublicArena({
+          isStudying: true,
+          studyingSubject: modeLabel,
+          studyingEndsAt: Date.now() + state.timer.remainingSecs * 1000
+        });
+
+        state.timer.intervalId = setInterval(async () => {
+          state.timer.remainingSecs -= 1;
+          updateTimerClock();
+          if (state.timer.remainingSecs <= 0) {
+            clearInterval(state.timer.intervalId);
+            state.timer.running = false;
+            livePill.classList.add('hidden');
+            btn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i><span>Start Focus</span>';
+            lucide.createIcons();
+            playChime();
+
+            const curWk = getIsoWeekId();
+            const prevWeeklyMins = state.profile.weekKey === curWk ? (state.profile.weeklyFocusMinutes || 0) : 0;
+            const newWeeklyMins = prevWeeklyMins + state.timer.durationMins;
+            const newSessions = (state.profile.focusSessionsCount || 0) + 1;
+
+            let xp = 40;
+            let label = `${state.timer.durationMins}m Focus Done!`;
+            const extraProf = { weeklyFocusMinutes: newWeeklyMins, focusSessionsCount: newSessions };
+            const extraArena = { isStudying: false, studyingSubject: '', studyingEndsAt: 0, weeklyFocusMinutes: newWeeklyMins };
+
+            if (state.timer.mode === 'mains') {
+              xp = state.timer.durationMins >= 10 ? 35 : 25;
+              const newToday = (state.profile.answersWrittenToday || 0) + 1;
+              const newTotal = (state.profile.answersWrittenTotal || 0) + 1;
+              extraProf.answersWrittenToday = newToday;
+              extraProf.answersWrittenTotal = newTotal;
+              extraArena.answersWritten = newTotal;
+              label = `Mains Answer Logged! (#${newTotal})`;
+            } else {
+              xp = state.timer.durationMins >= 90 ? 150 : state.timer.durationMins >= 50 ? 80 : 40;
+            }
+
+            await awardXp(xp, label, extraProf, extraArena);
+            state.timer.remainingSecs = state.timer.durationMins * 60;
+            updateTimerClock();
+          }
+        }, 1000);
+      }
+    };
+
+    window.resetTimer = async function () {
+      if (state.timer.running) {
+        clearInterval(state.timer.intervalId);
+        state.timer.running = false;
+        await syncPublicArena({ isStudying: false, studyingSubject: '', studyingEndsAt: 0 });
+      }
+      state.timer.remainingSecs = state.timer.durationMins * 60;
+      document.getElementById('timer-live-pill').classList.add('hidden');
+      document.getElementById('timer-toggle-btn').innerHTML = '<i data-lucide="play" class="w-4 h-4"></i><span>Start Focus</span>';
+      lucide.createIcons();
+      updateTimerClock();
+    };
+
+    function updateTimerClock() {
+      const m = Math.floor(state.timer.remainingSecs / 60);
+      const s = state.timer.remainingSecs % 60;
+      document.getElementById('timer-display').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      const tot = state.timer.durationMins * 60;
+      document.getElementById('timer-progress-bar').style.width = `${tot > 0 ? ((tot - state.timer.remainingSecs) / tot) * 100 : 0}%`;
+    }
+
+    // --- Daily Checklist ---
+    window.openTaskModal = function (id = null) {
+      const t = id ? state.tasks.find(x => x.id === id) : null;
+      document.getElementById('modal-task-title').textContent = t ? 'Edit Task' : 'Add Daily Task';
+      document.getElementById('task-edit-id').value = t ? t.id : '';
+      document.getElementById('task-title-in').value = t ? t.title : '';
+      document.getElementById('task-cat-in').value = t ? (t.category || 'GS I') : 'GS I';
+      document.getElementById('task-xp-in').value = t ? String(t.xp || 30) : '30';
+      openModal('modal-task');
+    };
+
+    window.submitTaskForm = async function (e) {
+      e.preventDefault();
+      const id = document.getElementById('task-edit-id').value;
+      const title = document.getElementById('task-title-in').value.trim();
+      const category = document.getElementById('task-cat-in').value;
+      const xp = parseInt(document.getElementById('task-xp-in').value, 10) || 30;
+      if (!title) return;
+      closeModal('modal-task');
+
+      if (id) {
+        if (currentUser && db) await updateDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'dailyTasks', id), { title, category, xp });
+        else { const x = state.tasks.find(t => t.id === id); if (x) Object.assign(x, { title, category, xp }); renderToday(); }
+      } else {
+        await quickAddTask(title, category, xp);
+      }
+    };
+
+    window.quickAddTask = async function (title, category, xp) {
+      const payload = { title, category, xp, completed: false, createdAt: Date.now() };
+      if (currentUser && db) await addDoc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'dailyTasks'), payload);
+      else { state.tasks.unshift({ id: 't-' + Date.now(), ...payload }); renderToday(); }
+      showToast(`Added "${title}"`, 'info');
+    };
+
+    window.toggleTask = async function (id) {
+      const t = state.tasks.find(x => x.id === id);
+      if (!t) return;
+      const next = !t.completed;
+      if (currentUser && db) await updateDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'dailyTasks', id), { completed: next });
+      else { t.completed = next; renderToday(); }
+
+      const today = getDateStr(0);
+      const extraProf = next ? { lastTaskDate: today } : {};
+      const extraArena = next ? { lastTaskDate: today } : {};
+      if (next) document.getElementById('nudge-alert-banner').classList.add('hidden');
+      await awardXp(next ? (t.xp || 30) : -(t.xp || 30), next ? t.category : '', extraProf, extraArena);
+    };
+
+    window.deleteTask = function (id) {
+      confirmAction('Delete Task', 'Remove this task from today\'s checklist?', async () => {
+        if (currentUser && db) await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'dailyTasks', id));
+        else { state.tasks = state.tasks.filter(x => x.id !== id); renderToday(); }
+      });
+    };
+
+    window.setTaskFilter = function (f) {
+      state.taskFilter = f;
+      document.querySelectorAll('.tfilter-btn').forEach(b => b.className = 'tfilter-btn px-3 py-1 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800');
+      document.getElementById(`tfilter-${f}`).className = 'tfilter-btn px-3 py-1 rounded-lg text-xs font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300';
+      renderToday();
+    };
+
+    // =========================================================================
+    // 8. SYLLABUS & REVISION DECAY
+    // =========================================================================
+
+    function getAllPaperTopics(paper) {
+      return [...paper.topics, ...((state.syllabus.customTopics && state.syllabus.customTopics[paper.id]) || [])];
+    }
+
+    function countDueRevisions() {
+      let due = 0;
+      SYLLABUS_PAPERS.forEach(p => getAllPaperTopics(p).forEach(t => { if (getRevisionDecayInfo(t.id)?.isDue) due++; }));
+      return due;
+    }
+
+    window.setSyllabusExam = function (exam) {
+      state.sylExam = exam;
+      state.sylDueOnly = false;
+      document.getElementById('syl-exam-prelims').className = exam === 'prelims'
+        ? 'px-4 py-2 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs'
+        : 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-400';
+      document.getElementById('syl-exam-mains').className = exam === 'mains'
+        ? 'px-4 py-2 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs'
+        : 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-400';
+      renderSyllabus();
+    };
+
+    window.toggleDueRevisionFilter = function () { state.sylDueOnly = !state.sylDueOnly; renderSyllabus(); };
+    window.toggleAcc = function (id) { state.openAcc[id] = !state.openAcc[id]; renderSyllabus(); };
+
+    window.setTopicStage = async function (topicId, newStage) {
+      const cur = state.syllabus.stages[topicId] || 0;
+      if (cur === newStage) return;
+      const prevMax = state.syllabus.maxAwarded[topicId] || 0;
+      let xp = 0;
+      if (newStage > prevMax) {
+        xp = STAGE_XP[newStage] - STAGE_XP[prevMax];
+        state.syllabus.maxAwarded[topicId] = newStage;
+      }
+      state.syllabus.stages[topicId] = newStage;
+      if (newStage === 3) {
+        if (!state.syllabus.revisions) state.syllabus.revisions = {};
+        const prevRev = state.syllabus.revisions[topicId] || {};
+        state.syllabus.revisions[topicId] = { lastRevisedAt: Date.now(), revisionCount: prevRev.revisionCount || 1 };
+      }
+      if (currentUser && db) await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'appData', 'syllabus'), state.syllabus, { merge: true });
+      renderSyllabus();
+      if (xp > 0) await awardXp(xp, 'Syllabus Mastery');
+    };
+
+    window.reviseTopicToday = async function (topicId, topicName) {
+      if (!state.syllabus.revisions) state.syllabus.revisions = {};
+      const prev = state.syllabus.revisions[topicId] || { revisionCount: 1 };
+      const nextCount = (prev.revisionCount || 1) + 1;
+      state.syllabus.revisions[topicId] = { lastRevisedAt: Date.now(), revisionCount: nextCount };
+      if (currentUser && db) await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'appData', 'syllabus'), state.syllabus, { merge: true });
+      renderSyllabus();
+      await awardXp(20, `Revised: ${topicName.slice(0, 22)} (Rev #${nextCount})`, { totalRevisions: (state.profile.totalRevisions || 0) + 1 });
+    };
+
+    window.openSubtopicModal = function (paperId, label) {
+      document.getElementById('subtopic-paper-id').value = paperId;
+      document.getElementById('subtopic-paper-lbl').textContent = `Paper: ${label}`;
+      document.getElementById('subtopic-name-in').value = '';
+      openModal('modal-subtopic');
+    };
+
+    window.submitSubtopic = async function (e) {
+      e.preventDefault();
+      const pid = document.getElementById('subtopic-paper-id').value;
+      const name = document.getElementById('subtopic-name-in').value.trim();
+      if (!name) return;
+      if (!state.syllabus.customTopics[pid]) state.syllabus.customTopics[pid] = [];
+      state.syllabus.customTopics[pid].push({ id: 'ct-' + Date.now(), name, custom: true });
+      closeModal('modal-subtopic');
+      state.openAcc[pid] = true;
+      if (currentUser && db) await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'appData', 'syllabus'), state.syllabus, { merge: true });
+      renderSyllabus();
+      showToast('Custom subtopic added!', 'success');
+    };
+
+    // =========================================================================
+    // 9. NOTES, REMINDERS & MISTAKE LOG
+    // =========================================================================
+
+    window.setNotesSubTab = function (sub) {
+      state.notesSub = sub;
+      ['notes', 'reminders', 'mistakes'].forEach(k => {
+        document.getElementById(`panel-${k}`).classList.toggle('hidden', k !== sub);
+        document.getElementById(`nsub-${k}`).className = k === sub
+          ? 'px-3.5 py-2 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs shrink-0 flex items-center gap-1.5'
+          : 'px-3.5 py-2 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-400 shrink-0 flex items-center gap-1.5';
+      });
+    };
+
+    window.setNotesTag = function (t) { state.notesTag = t; renderNotes(); };
+
+    window.openNoteModal = function (id = null) {
+      const n = id ? state.notes.find(x => x.id === id) : null;
+      document.getElementById('modal-note-title').textContent = n ? 'Edit Note' : 'New Study Note';
+      document.getElementById('note-edit-id').value = n ? n.id : '';
+      document.getElementById('note-title-in').value = n ? n.title : '';
+      document.getElementById('note-tag-in').value = n ? (n.tag || 'Prelims') : 'Prelims';
+      document.getElementById('note-content-in').value = n ? n.content : '';
+      openModal('modal-note');
+    };
+
+    window.submitNoteForm = async function (e) {
+      e.preventDefault();
+      const id = document.getElementById('note-edit-id').value;
+      const payload = {
+        title: document.getElementById('note-title-in').value.trim(),
+        tag: document.getElementById('note-tag-in').value,
+        content: document.getElementById('note-content-in').value.trim(),
+        updatedAt: Date.now()
+      };
+      if (!payload.title) return;
+      closeModal('modal-note');
+      if (id) {
+        if (currentUser && db) await updateDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'notes', id), payload);
+        else { const x = state.notes.find(n => n.id === id); if (x) Object.assign(x, payload); renderNotes(); }
+      } else {
+        if (currentUser && db) await addDoc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'notes'), payload);
+        else { state.notes.unshift({ id: 'n-' + Date.now(), ...payload }); renderNotes(); }
+      }
+      showToast('Note saved!', 'success');
+    };
+
+    window.deleteNote = function (id) {
+      confirmAction('Delete Note', 'Permanently delete this note?', async () => {
+        if (currentUser && db) await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'notes', id));
+        else { state.notes = state.notes.filter(x => x.id !== id); renderNotes(); }
+      });
+    };
+
+    window.openMistakeModal = function () {
+      document.getElementById('mis-topic-in').value = '';
+      document.getElementById('mis-src-in').value = 'Prelims PYQ';
+      document.getElementById('mis-fix-in').value = '';
+      openModal('modal-mistake');
+    };
+
+    window.submitMistakeForm = async function (e) {
+      e.preventDefault();
+      const payload = {
+        topic: document.getElementById('mis-topic-in').value.trim(),
+        subject: document.getElementById('mis-sub-in').value,
+        errorType: document.getElementById('mis-err-in').value,
+        source: document.getElementById('mis-src-in').value.trim() || 'Mock Test',
+        correction: document.getElementById('mis-fix-in').value.trim(),
+        mastered: false, xpAwarded: false, createdAt: Date.now()
+      };
+      if (!payload.topic) return;
+      closeModal('modal-mistake');
+      if (currentUser && db) await addDoc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'mistakes'), payload);
+      else { state.mistakes.unshift({ id: 'm-' + Date.now(), ...payload }); renderMistakes(); }
+      showToast('Mistake logged!', 'info');
+    };
+
+    window.toggleMistakeMastered = async function (id) {
+      const m = state.mistakes.find(x => x.id === id);
+      if (!m) return;
+      const next = !m.mastered;
+      const awardNow = next && !m.xpAwarded;
+      const patch = { mastered: next, xpAwarded: m.xpAwarded || awardNow };
+      if (currentUser && db) await updateDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'mistakes', id), patch);
+      else { Object.assign(m, patch); renderMistakes(); }
+      if (awardNow) await awardXp(15, 'Mistake Mastered!');
+    };
+
+    window.deleteMistake = function (id) {
+      confirmAction('Delete Mistake Entry', 'Remove this mistake from your log?', async () => {
+        if (currentUser && db) await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'mistakes', id));
+        else { state.mistakes = state.mistakes.filter(x => x.id !== id); renderMistakes(); }
+      });
+    };
+
+    window.openReminderModal = function () {
+      document.getElementById('rem-title-in').value = '';
+      const d = new Date(Date.now() + 3600000);
+      document.getElementById('rem-dt-in').value = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      openModal('modal-reminder');
+    };
+
+    window.submitReminderForm = async function (e) {
+      e.preventDefault();
+      const payload = {
+        title: document.getElementById('rem-title-in').value.trim(),
+        dueTime: new Date(document.getElementById('rem-dt-in').value).getTime(),
+        priority: document.getElementById('rem-prio-in').value,
+        done: false, createdAt: Date.now()
+      };
+      if (!payload.title) return;
+      closeModal('modal-reminder');
+      if (currentUser && db) await addDoc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'reminders'), payload);
+      else { state.reminders.push({ id: 'rem-' + Date.now(), ...payload }); renderReminders(); checkDueReminders(); }
+      showToast('Reminder scheduled!', 'success');
+    };
+
+    window.markReminderDone = async function (id) {
+      const r = state.reminders.find(x => x.id === id);
+      if (!r || r.done) return;
+      if (currentUser && db) await updateDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'reminders', id), { done: true });
+      else { r.done = true; renderReminders(); }
+      state.dismissedReminders.add(id);
+      checkDueReminders();
+      await awardXp(10, 'Reminder Done');
+    };
+
+    window.deleteReminder = function (id) {
+      confirmAction('Delete Reminder', 'Remove this reminder?', async () => {
+        if (currentUser && db) await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'reminders', id));
+        else { state.reminders = state.reminders.filter(x => x.id !== id); renderReminders(); }
+        checkDueReminders();
+      });
+    };
+
+    function checkDueReminders() {
+      const due = state.reminders.filter(r => !r.done && r.dueTime <= Date.now());
+      const c = due.length;
+      const dB = document.getElementById('desk-rem-badge');
+      const sB = document.getElementById('nsub-rem-count');
+      const mD = document.getElementById('mob-rem-dot');
+      if (c > 0) { dB.textContent = c; dB.classList.remove('hidden'); sB.textContent = c; sB.classList.remove('hidden'); mD.classList.remove('hidden'); }
+      else { dB.classList.add('hidden'); sB.classList.add('hidden'); mD.classList.add('hidden'); }
+
+      const banner = document.getElementById('due-reminder-banner');
+      const active = due.find(r => !state.dismissedReminders.has(r.id));
+      if (active) {
+        document.getElementById('due-reminder-text').textContent = `Reminder Due: ${active.title}`;
+        document.getElementById('due-reminder-done-btn').onclick = () => markReminderDone(active.id);
+        document.getElementById('due-reminder-dismiss-btn').onclick = () => { state.dismissedReminders.add(active.id); banner.classList.add('hidden'); };
+        banner.classList.remove('hidden');
+      } else banner.classList.add('hidden');
+    }
+    setInterval(checkDueReminders, 15000);
+
+      // =========================================================================
+    // 10. STUDY ARENA: WEEKLY TOPPER, COHORT GOAL, NUDGES & SQUADS (WAVE 2)
+    // =========================================================================
+
+    window.setArenaScope = function (sc) {
+      state.arenaScope = sc;
+      document.getElementById('arena-global-btn').className = sc === 'global'
+        ? 'px-4 py-2 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs'
+        : 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-400';
+      document.getElementById('arena-squad-btn').className = sc === 'squad'
+        ? 'px-4 py-2 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs'
+        : 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-400';
+      renderArena();
+    };
+
+    window.setLbSort = function (key) {
+      state.lbSort = key;
+      document.querySelectorAll('.lbsort-btn').forEach(b => b.className = 'lbsort-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800');
+      document.getElementById(`lbsort-${key}`).className = 'lbsort-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300';
+      renderArena();
+    };
+
+    window.openCohortGoalModal = function () {
+      const sq = state.profile.squadCode;
+      const curTarget = (state.arenaScope === 'squad' && sq && state.squads[sq]?.targetHours)
+        ? state.squads[sq].targetHours
+        : state.globalCohortTargetHours;
+      document.getElementById('cohort-goal-in').value = curTarget;
+      openModal('modal-cohort-goal');
+    };
+
+    window.saveCohortGoalTarget = async function (e) {
+      e.preventDefault();
+      const targetHours = Math.max(5, parseInt(document.getElementById('cohort-goal-in').value, 10) || 150);
+      closeModal('modal-cohort-goal');
+      const sq = state.profile.squadCode;
+
+      if (state.arenaScope === 'squad' && sq) {
+        if (state.squads[sq]) state.squads[sq].targetHours = targetHours;
+        if (currentUser && db) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'squads', sq), { targetHours }, { merge: true });
+      } else {
+        state.globalCohortTargetHours = targetHours;
+        if (currentUser && db) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cohortMeta', 'global'), { targetHours, updatedAt: Date.now() }, { merge: true });
+      }
+      renderArena();
+      showToast(`Weekly cohort target set to ${targetHours} Focus Hours!`, 'success');
+    };
+
+    window.cheerUser = async function (uid, name) {
+      if (currentUser && db) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', uid), { cheersCount: increment(1) });
+      showToast(`Cheered ${name}! Keep going! 🔥`, 'success');
+    };
+
+    // Wave 2: Send 1-Tap Streak Rescue Nudge
+    window.sendStreakNudge = async function (uid, name) {
+      if (state.nudgedUidsToday.has(uid)) { showToast(`Already nudged ${name} today!`, 'info'); return; }
+      state.nudgedUidsToday.add(uid);
+      if (currentUser && db) {
+        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', uid), {
+          lastNudge: {
+            fromName: state.profile.displayName || 'A friend',
+            fromUid: currentUser.uid,
+            at: Date.now(),
+            date: getDateStr(0)
+          }
+        });
+      }
+      renderArena();
+      showToast(`⚡ Sent Streak Rescue Nudge to ${name}!`, 'success');
+    };
+
+    window.dismissNudgeBanner = function (goToday) {
+      state.dismissedNudgeAt = Date.now();
+      document.getElementById('nudge-alert-banner').classList.add('hidden');
+      if (goToday) switchTab('today');
+    };
+
+    window.createSquad = async function (e) {
+      e.preventDefault();
+      const name = document.getElementById('sq-create-in').value.trim();
+      if (!name) return;
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      if (currentUser && db) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'squads', code), { name, code, targetHours: 150, createdAt: Date.now() });
+      else state.squads[code] = { name, code, targetHours: 150 };
+      await saveProfile({ squadCode: code });
+      await syncPublicArena({ squadCode: code });
+      closeModal('modal-squad');
+      setArenaScope('squad');
+      showToast(`Squad "${name}" created! Code: ${code}`, 'success');
+    };
+
+    window.joinSquad = async function (e) {
+      e.preventDefault();
+      const code = document.getElementById('sq-join-in').value.trim().toUpperCase();
+      if (code.length !== 6) { showToast('Enter a 6-character code', 'info'); return; }
+      if (currentUser && db) {
+        const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'squads', code));
+        if (!snap.exists()) { showToast('Squad code not found!', 'info'); return; }
+      }
+      await saveProfile({ squadCode: code });
+      await syncPublicArena({ squadCode: code });
+      closeModal('modal-squad');
+      setArenaScope('squad');
+      showToast(`Joined Squad ${code}!`, 'success');
+    };
+
+    window.leaveSquad = function () {
+      confirmAction('Leave Squad', 'Leave your current Study Squad?', async () => {
+        await saveProfile({ squadCode: '' });
+        await syncPublicArena({ squadCode: '' });
+        setArenaScope('global');
+      });
+    };
+
+    // =========================================================================
+    // 11. REWARDS SHOP, STREAK FREEZE & PROFILE
+    // =========================================================================
+
+    window.buyStreakFreeze = async function () {
+      const owned = state.profile.streakFreezes || 0;
+      const coins = state.profile.coins || 0;
+      if (owned >= 3) { showToast('You already hold the maximum of 3 Streak Freezes!', 'info'); return; }
+      if (coins < 150) { showToast(`Need ${150 - coins} more Study Coins!`, 'info'); return; }
+      await saveProfile({ coins: coins - 150, streakFreezes: owned + 1 });
+      renderHeader();
+      renderProfileRewards();
+      showToast('🛡️ 1-Day Streak Freeze added!', 'success');
+    };
+
+    window.openRewardModal = function () {
+      document.getElementById('rew-name-in').value = '';
+      document.getElementById('rew-cost-in').value = '100';
+      document.getElementById('rew-emoji-in').value = '🎉';
+      openModal('modal-reward');
+    };
+
+    window.submitCustomReward = async function (e) {
+      e.preventDefault();
+      state.rewards.items.push({
+        id: 'rw-' + Date.now(),
+        name: document.getElementById('rew-name-in').value.trim(),
+        cost: parseInt(document.getElementById('rew-cost-in').value, 10) || 100,
+        emoji: document.getElementById('rew-emoji-in').value.trim() || '🎁',
+        custom: true
+      });
+      closeModal('modal-reward');
+      if (currentUser && db) await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'appData', 'rewards'), state.rewards, { merge: true });
+      renderProfileRewards();
+    };
+
+    window.redeemReward = async function (id) {
+      const item = state.rewards.items.find(r => r.id === id);
+      if (!item) return;
+      if ((state.profile.coins || 0) < item.cost) { showToast(`Need ${item.cost - (state.profile.coins || 0)} more Coins!`, 'info'); return; }
+      state.rewards.history.unshift({ name: item.name, emoji: item.emoji, cost: item.cost, at: Date.now() });
+      state.rewards.history = state.rewards.history.slice(0, 8);
+      await saveProfile({ coins: state.profile.coins - item.cost });
+      if (currentUser && db) await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'appData', 'rewards'), state.rewards, { merge: true });
+      renderHeader();
+      renderProfileRewards();
+      showToast(`${item.emoji} Redeemed "${item.name}"!`, 'success');
+    };
+
+    window.deleteReward = async function (id) {
+      state.rewards.items = state.rewards.items.filter(r => r.id !== id);
+      if (currentUser && db) await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'appData', 'rewards'), state.rewards, { merge: true });
+      renderProfileRewards();
+    };
+
+    window.saveProfileSettings = async function (e) {
+      e.preventDefault();
+      const displayName = document.getElementById('prof-name').value.trim() || 'Aspirant';
+      const optionalSubject = document.getElementById('prof-optional').value.trim() || 'Optional';
+      const dailyTargetXp = Math.max(30, parseInt(document.getElementById('prof-target-xp').value, 10) || 150);
+      await saveProfile({ displayName, optionalSubject, dailyTargetXp });
+      await syncPublicArena({ displayName });
+      renderAll();
+      showToast('Profile settings saved!', 'success');
+    };
+
+    // =========================================================================
+    // 12. RENDERERS
+    // =========================================================================
+
+    function renderAll() {
+      updateAuthUi();
+      renderHeader();
+      renderToday();
+      renderSyllabus();
+      renderNotes();
+      renderMistakes();
+      renderReminders();
+      renderArena();
+      renderProfileRewards();
+      checkDueReminders();
+      lucide.createIcons();
+    }
+
+    function renderHeader() {
+      const p = state.profile;
+      const lvl = getLevelInfo(p.totalXp || 0);
+      document.getElementById('header-rank-sub').textContent = `Lvl ${lvl.level} • ${getRankTitle(p.totalXp || 0)}`;
+      document.getElementById('hdr-streak').textContent = p.streak || 0;
+      document.getElementById('hdr-freezes').textContent = p.streakFreezes || 0;
+      document.getElementById('hdr-coins').textContent = p.coins || 0;
+    }
+
+    function renderToday() {
+      const p = state.profile;
+      const now = new Date();
+      document.getElementById('today-date-label').textContent = now.toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('today-name').textContent = p.displayName || 'Aspirant';
+      document.getElementById('hero-streak').textContent = p.streak || 0;
+      document.getElementById('hero-answers-today').textContent = p.answersWrittenToday || 0;
+      document.getElementById('hero-answers-total').textContent = p.answersWrittenTotal || 0;
+      document.getElementById('hero-total-xp').textContent = p.totalXp || 0;
+
+      const calcDays = (iso) => Math.max(0, Math.ceil((new Date(iso + 'T00:00:00') - new Date(getDateStr(0) + 'T00:00:00')) / MS_PER_DAY));
+      const fmtDate = (iso) => new Date(iso + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      const preIso = p.prelimsDate || '2027-05-23';
+      const mainIso = p.mainsDate || '2027-09-17';
+      document.getElementById('cd-prelims-days').textContent = calcDays(preIso);
+      document.getElementById('cd-prelims-date').textContent = fmtDate(preIso);
+      document.getElementById('cd-mains-days').textContent = calcDays(mainIso);
+      document.getElementById('cd-mains-date').textContent = fmtDate(mainIso);
+
+      const earned = p.todayXp || 0;
+      const target = p.dailyTargetXp || 150;
+      document.getElementById('today-xp-earned').textContent = earned;
+      document.getElementById('today-xp-target').textContent = target;
+      document.getElementById('today-xp-bar').style.width = `${Math.min(100, Math.round((earned / target) * 100))}%`;
+
+      const done = state.tasks.filter(t => t.completed).length;
+      document.getElementById('tasks-summary').textContent = `${done} of ${state.tasks.length} tasks completed`;
+      const list = state.tasks.filter(t => state.taskFilter === 'pending' ? !t.completed : state.taskFilter === 'completed' ? t.completed : true);
+      const el = document.getElementById('daily-tasks-list');
+
+      if (!list.length) {
+        el.innerHTML = `<div class="text-center py-9 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">No tasks yet. Tap a UPSC preset above or click <strong>Add Task</strong>.</div>`;
+        return;
+      }
+
+      el.innerHTML = list.map(t => `
+        <div class="flex items-center gap-3 p-3.5 rounded-xl border transition ${t.completed ? 'bg-slate-50/70 dark:bg-slate-800/30 border-slate-200/60 dark:border-slate-800/60 opacity-75' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-500/40'}">
+          <button onclick="toggleTask('${t.id}')" class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition ${t.completed ? 'bg-emerald-500 text-white' : 'border-2 border-slate-300 dark:border-slate-600 hover:border-indigo-500'}">
+            ${t.completed ? '<i data-lucide="check" class="w-3.5 h-3.5"></i>' : ''}
+          </button>
+          <div class="min-w-0 flex-1">
+            <div class="text-sm font-semibold ${t.completed ? 'line-through text-slate-400' : ''}">${esc(t.title)}</div>
+            <div class="flex items-center gap-1.5 mt-1">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">${esc(t.category || 'GS')}</span>
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400">+${t.xp || 30} XP</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            <button onclick="openTaskModal('${t.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+            <button onclick="deleteTask('${t.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function renderSyllabus() {
+      let totPts = 0, gotPts = 0;
+      SYLLABUS_PAPERS.forEach(p => getAllPaperTopics(p).forEach(t => { totPts += 3; gotPts += (state.syllabus.stages[t.id] || 0); }));
+      const pct = totPts ? Math.round((gotPts / totPts) * 100) : 0;
+      document.getElementById('syl-overall-pct').textContent = `${pct}%`;
+      document.getElementById('syl-overall-bar').style.width = `${pct}%`;
+
+      const dueCount = countDueRevisions();
+      document.getElementById('syl-due-count').textContent = dueCount;
+      const dB = document.getElementById('desk-due-rev-badge');
+      const mD = document.getElementById('mob-due-dot');
+      if (dueCount > 0) { dB.textContent = dueCount; dB.classList.remove('hidden'); mD.classList.remove('hidden'); }
+      else { dB.classList.add('hidden'); mD.classList.add('hidden'); }
+
+      document.getElementById('syl-due-filter-btn').className = state.sylDueOnly
+        ? 'px-3.5 py-2.5 rounded-xl text-xs font-bold border border-amber-500 bg-amber-500 text-slate-950 flex items-center gap-1.5 transition shadow-xs'
+        : 'px-3.5 py-2.5 rounded-xl text-xs font-bold border border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10 text-amber-800 dark:text-amber-300 hover:bg-amber-100 flex items-center gap-1.5 transition';
+
+      const q = (document.getElementById('syl-search')?.value || '').trim().toLowerCase();
+      const papers = state.sylDueOnly ? SYLLABUS_PAPERS : SYLLABUS_PAPERS.filter(p => p.exam === state.sylExam);
+
+      const html = papers.map(p => {
+        let pName = p.name;
+        if (p.id === 'm-opt1') pName = `${state.profile.optionalSubject || 'Optional'} — Paper I`;
+        if (p.id === 'm-opt2') pName = `${state.profile.optionalSubject || 'Optional'} — Paper II`;
+
+        const all = getAllPaperTopics(p);
+        let vis = q ? all.filter(t => t.name.toLowerCase().includes(q)) : all;
+        if (state.sylDueOnly) vis = vis.filter(t => getRevisionDecayInfo(t.id)?.isDue);
+        if ((q || state.sylDueOnly) && !vis.length) return '';
+
+        const pPts = all.reduce((s, t) => s + (state.syllabus.stages[t.id] || 0), 0);
+        const pPct = all.length ? Math.round((pPts / (all.length * 3)) * 100) : 0;
+        const isOpen = (q || state.sylDueOnly) ? true : Boolean(state.openAcc[p.id]);
+
+        return `
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
+            <button onclick="toggleAcc('${p.id}')" class="w-full p-4 flex items-center justify-between gap-3 text-left hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-sm sm:text-base truncate">${esc(pName)}</h3>
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">${pPct}%</span>
+                </div>
+                <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${esc(p.sub)}</div>
+                <div class="w-full max-w-sm h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-2">
+                  <div class="h-full bg-indigo-600 rounded-full transition-all" style="width:${pPct}%"></div>
+                </div>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}"></i>
+            </button>
+            ${isOpen ? `
+              <div class="px-4 pb-4 pt-1 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+                ${vis.map(t => {
+                  const st = state.syllabus.stages[t.id] || 0;
+                  const decay = getRevisionDecayInfo(t.id);
+                  return `
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border ${decay?.isDue ? 'border-amber-400 dark:border-amber-500/50' : 'border-slate-200/60 dark:border-slate-700/50'} space-y-2">
+                      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex items-start gap-2 min-w-0">
+                          <span class="mt-1.5 w-2 h-2 rounded-full shrink-0 ${st === 3 ? 'bg-emerald-500' : st === 2 ? 'bg-indigo-500' : st === 1 ? 'bg-sky-500' : 'bg-slate-300 dark:bg-slate-600'}"></span>
+                          <span class="text-xs sm:text-sm font-semibold">${esc(t.name)}</span>
+                        </div>
+                        <div class="flex items-center gap-1 shrink-0">
+                          ${[
+                            { s: 0, l: 'None', c: 'bg-slate-600 text-white' },
+                            { s: 1, l: '1st Read', c: 'bg-sky-600 text-white' },
+                            { s: 2, l: 'Notes', c: 'bg-indigo-600 text-white' },
+                            { s: 3, l: 'Rev+PYQ', c: 'bg-emerald-600 text-white' }
+                          ].map(b => `
+                            <button onclick="setTopicStage('${t.id}', ${b.s})" class="px-2 py-1 rounded-lg text-[10px] font-bold transition ${st === b.s ? b.c : 'bg-white dark:bg-slate-900 text-slate-500 border border-slate-200 dark:border-slate-700'}">${b.l}</button>
+                          `).join('')}
+                        </div>
+                      </div>
+                      ${decay ? `
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/60 dark:border-slate-700/50 text-[11px]">
+                          <div class="flex items-center gap-2">
+                            ${decay.isDue
+                              ? `<span class="px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 font-extrabold">DUE FOR REVISION (${decay.daysAgo}d ago)</span>`
+ : `<span class="text-slate-500 dark:text-slate-400 font-medium">Revised ${decay.daysAgo === 0 ? 'today' : decay.daysAgo + 'd ago'} • Next in ${decay.daysUntilDue}d</span>`
+                            }
+                            <span class="text-slate-400">Rev #${decay.count}</span>
+                          </div>
+                          <button onclick="reviseTopicToday('${t.id}', '${esc(t.name)}')" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition">
+                            Revise Today (+20 XP)
+                          </button>
+                        </div>
+                      ` : ''}
+                    </div>
+                  `;
+                }).join('')}
+                ${!state.sylDueOnly ? `
+                  <button onclick="openSubtopicModal('${p.id}', '${esc(pName)}')" class="w-full py-2 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/10 transition">
+                    + Add Custom Subtopic
+                  </button>
+                ` : ''}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('syllabus-container').innerHTML = html || `
+        <div class="text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-xs text-slate-500">
+          ${state.sylDueOnly ? '🎉 Zero topics due for revision right now!' : 'No matching syllabus topics found.'}
+        </div>
+      `;
+      lucide.createIcons();
+    }
+    
+function renderNotes() {
+      const tags = ['All', 'Prelims', 'GS I', 'GS II', 'GS III', 'GS IV', 'Optional', 'CA', 'Misc'];
+      document.getElementById('notes-tag-bar').innerHTML = tags.map(t => `
+        <button onclick="setNotesTag('${t}')" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition ${state.notesTag === t ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'}">${t}</button>
+      `).join('');
+
+      const q = (document.getElementById('notes-search')?.value || '').trim().toLowerCase();
+      const list = state.notes.filter(n => (state.notesTag === 'All' || n.tag === state.notesTag) && (!q || n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)));
+      const grid = document.getElementById('notes-grid');
+
+      if (!list.length) {
+        grid.innerHTML = `<div class="sm:col-span-2 lg:col-span-3 text-center py-10 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-xs text-slate-500">No study notes yet.</div>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(n => `
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">${esc(n.tag || 'Misc')}</span>
+              <div class="flex gap-1">
+                <button onclick="openNoteModal('${n.id}')" class="p-1 text-slate-400 hover:text-indigo-600"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                <button onclick="deleteNote('${n.id}')" class="p-1 text-slate-400 hover:text-rose-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+              </div>
+            </div>
+            <h3 class="font-bold text-sm">${esc(n.title)}</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 whitespace-pre-line line-clamp-5">${esc(n.content)}</p>
+          </div>
+          <div class="text-[10px] text-slate-400 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">${new Date(n.updatedAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function renderMistakes() {
+      const errF = document.getElementById('mistake-err-filter')?.value || 'All';
+      const subF = document.getElementById('mistake-sub-filter')?.value || 'All';
+      const list = state.mistakes.filter(m => (errF === 'All' || m.errorType === errF) && (subF === 'All' || m.subject === subF));
+      const el = document.getElementById('mistakes-list');
+
+      if (!list.length) {
+        el.innerHTML = `<div class="md:col-span-2 text-center py-10 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-xs text-slate-500">No mistakes logged yet. Track wrong PYQ/Mock questions here!</div>`;
+        return;
+      }
+
+      const errColors = {
+        'Conceptual Gap': 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300',
+        'Silly Mistake': 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300',
+        'Elimination Error': 'bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300',
+        'Factual Recall': 'bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300'
+      };
+
+      el.innerHTML = list.map(m => `
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border ${m.mastered ? 'border-emerald-300 dark:border-emerald-500/30 opacity-80' : 'border-slate-200 dark:border-slate-800'} p-4 shadow-xs flex flex-col justify-between gap-3">
+          <div>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${errColors[m.errorType] || 'bg-slate-100'}">${esc(m.errorType)}</span>
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">${esc(m.subject)}</span>
+                <span class="text-[10px] font-semibold text-slate-400">• ${esc(m.source)}</span>
+              </div>
+              <button onclick="deleteMistake('${m.id}')" class="p-1 text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </div>
+            <h3 class="font-bold text-sm ${m.mastered ? 'line-through text-slate-400' : ''}">${esc(m.topic)}</h3>
+            <div class="mt-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">Takeaway:</span> ${esc(m.correction)}
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <span class="text-[10px] text-slate-400">${new Date(m.createdAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+            <button onclick="toggleMistakeMastered('${m.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition ${m.mastered ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}">
+              ${m.mastered ? '✓ Mastered' : 'Mark Mastered (+15 XP)'}
+            </button>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function renderReminders() {
+      const el = document.getElementById('reminders-list');
+      if (!state.reminders.length) {
+        el.innerHTML = `<div class="text-center py-10 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-xs text-slate-500">No reminders scheduled.</div>`;
+        return;
+      }
+      const now = Date.now();
+      el.innerHTML = state.reminders.map(r => `
+        <div class="bg-white dark:bg-slate-900 rounded-xl border ${!r.done && r.dueTime <= now ? 'border-rose-400' : 'border-slate-200 dark:border-slate-800'} p-3.5 flex items-center justify-between gap-3">
+          <div>
+            <div class="text-sm font-bold ${r.done ? 'line-through text-slate-400' : ''}">${esc(r.title)}</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">${new Date(r.dueTime).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} • <span class="uppercase font-bold">${r.priority}</span></div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            ${!r.done ? `<button onclick="markReminderDone('${r.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold">Done +10</button>` : '<span class="text-emerald-500 text-xs font-bold">Done</span>'}
+            <button onclick="deleteReminder('${r.id}')" class="p-1.5 text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function renderArena() {
+      const myUid = currentUser?.uid || 'local';
+      const sq = state.profile.squadCode || '';
+      const curWk = getIsoWeekId();
+      const today = getDateStr(0);
+
+      // Squad Banner
+      const sqEl = document.getElementById('squad-banner');
+      if (sq) {
+        const sqName = state.squads[sq]?.name || `Squad ${sq}`;
+        const memCount = state.leaderboard.filter(u => u.squadCode === sq).length;
+        sqEl.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Your Study Squad</div>
+              <div class="font-extrabold text-base">${esc(sqName)} <span class="text-xs font-semibold text-slate-400">(${memCount} members)</span></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="copyText('${sq}', 'Squad code ${sq} copied!')" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-mono text-xs font-extrabold tracking-widest flex items-center gap-1.5">${sq} <i data-lucide="copy" class="w-3.5 h-3.5 text-indigo-500"></i></button>
+              <button onclick="leaveSquad()" class="px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">Leave</button>
+            </div>
+          </div>
+        `;
+      } else {
+        sqEl.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="font-bold text-sm">Study with Your 20-Person Cohort in a Squad</div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Optional — solo aspirants compete seamlessly on the Global leaderboard.</p>
+            </div>
+            <button onclick="openModal('modal-squad')" class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold shrink-0">Create / Join Squad</button>
+          </div>
+        `;
+      }
+
+      let pool = state.leaderboard.length ? [...state.leaderboard] : [{
+        uid: myUid, displayName: state.profile.displayName, totalXP: state.profile.totalXp,
+        weeklyXP: state.profile.weeklyXp, weeklyFocusMinutes: state.profile.weeklyFocusMinutes,
+        weekKey: curWk, streak: state.profile.streak, squadCode: sq, lastTaskDate: state.profile.lastTaskDate,
+        isStudying: state.timer.running, studyingSubject: state.timer.subject,
+        studyingEndsAt: Date.now() + 600000, cheersCount: 0, answersWritten: state.profile.answersWrittenTotal
+      }];
+      if (state.arenaScope === 'squad') pool = sq ? pool.filter(u => u.squadCode === sq) : [];
+
+      // 1. Topper of the Week Spotlight
+      document.getElementById('arena-week-badge').textContent = curWk;
+      const weeklySorted = [...pool]
+        .map(u => ({ ...u, curWkXp: u.weekKey === curWk ? (u.weeklyXP || 0) : 0 }))
+        .sort((a, b) => b.curWkXp - a.curWkXp);
+      const topper = weeklySorted[0];
+      if (topper && topper.curWkXp > 0) {
+        document.getElementById('topper-name').textContent = topper.displayName + (topper.uid === myUid ? ' (You!)' : '');
+        document.getElementById('topper-meta').textContent = `${topper.curWkXp} Weekly XP • 🔥 ${topper.streak || 0}d streak`;
+      } else {
+        document.getElementById('topper-name').textContent = 'Claim the Crown!';
+        document.getElementById('topper-meta').textContent = 'Fresh week! Complete a task or timer to take #1.';
+      }
+
+      // 2. Shared Cohort Goal Bar
+      const totalMins = pool.reduce((sum, u) => sum + (u.weekKey === curWk ? (u.weeklyFocusMinutes || 0) : 0), 0);
+      const loggedHrs = totalMins / 60;
+      const targetHrs = (state.arenaScope === 'squad' && sq && state.squads[sq]?.targetHours)
+        ? state.squads[sq].targetHours
+        : state.globalCohortTargetHours;
+      const goalPct = Math.min(100, Math.round((loggedHrs / Math.max(1, targetHrs)) * 100));
+
+      document.getElementById('cohort-goal-title').textContent = state.arenaScope === 'squad' ? 'Squad Weekly Focus Goal' : 'Shared Cohort Weekly Goal';
+      document.getElementById('cohort-hours-logged').textContent = loggedHrs.toFixed(1);
+      document.getElementById('cohort-hours-target').textContent = targetHrs;
+      document.getElementById('cohort-goal-pct').textContent = `${goalPct}%`;
+      document.getElementById('cohort-goal-bar').style.width = `${goalPct}%`;
+
+      // 3. Live Studying Right Now Feed
+      const now = Date.now();
+      const live = pool.filter(u => u.isStudying && (u.studyingEndsAt || 0) > now);
+      document.getElementById('arena-live-count').textContent = `${live.length} live`;
+      document.getElementById('desk-live-dot').classList.toggle('hidden', !live.length);
+      document.getElementById('mob-live-dot').classList.toggle('hidden', !live.length);
+
+      document.getElementById('arena-live-feed').innerHTML = live.length ? live.map(u => `
+        <div class="p-3 rounded-xl bg-emerald-50/60 dark:bg-emerald-500/5 border border-emerald-200/70 dark:border-emerald-500/20 flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <div class="font-bold text-xs sm:text-sm truncate">${esc(u.displayName)} ${u.uid === myUid ? '(You)' : ''}</div>
+            <div class="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold truncate">${esc(u.studyingSubject || 'Studying UPSC')}</div>
+          </div>
+          ${u.uid !== myUid ? `<button onclick="cheerUser('${u.uid}', '${esc(u.displayName)}')" class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold shrink-0">🔥 Cheer</button>` : '<span class="text-xs font-bold text-emerald-600">Active</span>'}
+        </div>
+      `).join('') : `<div class="text-center py-6 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500">No active timers right now. Start a session in Today!</div>`;
+
+      // 4. Streak Rescue Nudges (highlighted urgently after 9 PM)
+      const isAfter9PM = new Date().getHours() >= 21;
+      const urgPill = document.getElementById('nudge-urgency-pill');
+      if (isAfter9PM) {
+        urgPill.textContent = 'URGENT • After 9 PM';
+        urgPill.className = 'px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500 text-white animate-pulse';
+      } else {
+        urgPill.textContent = 'Daily Check-in';
+        urgPill.className = 'px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300';
+      }
+
+      const atRisk = pool.filter(u => u.uid !== myUid && u.lastTaskDate !== today).slice(0, 6);
+      document.getElementById('streak-rescue-list').innerHTML = atRisk.length ? atRisk.map(u => {
+        const already = state.nudgedUidsToday.has(u.uid);
+        return `
+          <div class="p-2.5 rounded-xl border ${isAfter9PM ? 'border-rose-300 dark:border-rose-500/40 bg-rose-50/40 dark:bg-rose-500/5' : 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40'} flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="font-bold text-xs truncate">${esc(u.displayName)}</div>
+              <div class="text-[10px] text-slate-500">No task yet today • 🔥 ${u.streak || 0}d streak</div>
+            </div>
+            <button onclick="sendStreakNudge('${u.uid}', '${esc(u.displayName)}')" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold shrink-0 transition ${already ? 'bg-slate-200 dark:bg-slate-700 text-slate-500' : 'bg-amber-500 hover:bg-amber-600 text-slate-950'}">
+              ${already ? 'Nudged ✓' : '⚡ Nudge'}
+            </button>
+          </div>
+        `;
+      }).join('') : `<div class="text-center py-6 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500">🎉 Everyone in this view has logged a task today (or invite friends to join)!</div>`;
+
+      // 5. Leaderboard
+      const ranked = [...pool].sort((a, b) => {
+        if (state.lbSort === 'weeklyXp') return ((b.weekKey === curWk ? b.weeklyXP : 0) || 0) - ((a.weekKey === curWk ? a.weeklyXP : 0) || 0);
+        if (state.lbSort === 'streak') return (b.streak || 0) - (a.streak || 0);
+        return (b.totalXP || 0) - (a.totalXP || 0);
+      });
+
+      document.getElementById('lb-heading').textContent = state.arenaScope === 'squad' ? 'Squad Leaderboard' : 'Global Leaderboard';
+      document.getElementById('leaderboard-list').innerHTML = ranked.length ? ranked.map((u, i) => {
+        const isMe = u.uid === myUid;
+        const wkXp = (u.weekKey === curWk ? u.weeklyXP : 0) || 0;
+        const val = state.lbSort === 'weeklyXp' ? `${wkXp} W-XP` : state.lbSort === 'streak' ? `${u.streak || 0}d` : `${u.totalXP || 0} XP`;
+        return `
+          <div class="p-3.5 rounded-xl border flex items-center justify-between gap-3 ${isMe ? 'bg-indigo-50/70 dark:bg-indigo-500/10 border-indigo-300 dark:border-indigo-500/40' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'}">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-8 h-8 rounded-lg ${i === 0 ? 'bg-amber-400 text-slate-950' : i === 1 ? 'bg-slate-300 text-slate-900' : i === 2 ? 'bg-amber-700 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'} font-extrabold text-xs flex items-center justify-center shrink-0">#${i + 1}</div>
+              <div class="min-w-0">
+                <div class="font-bold text-sm truncate">${esc(u.displayName)} ${isMe ? '<span class="px-1.5 rounded bg-indigo-600 text-white text-[9px]">YOU</span>' : ''}</div>
+                <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-1.5">
+                  <span class="text-indigo-600 dark:text-indigo-400 font-semibold">${getRankTitle(u.totalXP || 0)}</span>
+                  <span>• 🔥 ${u.streak || 0}d</span>
+                  ${(u.answersWritten || 0) > 0 ? `<span>• ✍️ ${u.answersWritten}</span>` : ''}
+                  ${(u.cheersCount || 0) > 0 ? `<span>• 👏 ${u.cheersCount}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <div class="font-extrabold text-sm shrink-0">${val}</div>
+          </div>
+        `;
+      }).join('') : `<div class="text-center py-8 text-xs text-slate-500">Join or create a squad to view your squad leaderboard.</div>`;
+      lucide.createIcons();
+    }
+
+    function renderProfileRewards() {
+      const p = state.profile;
+      const lvl = getLevelInfo(p.totalXp || 0);
+      document.getElementById('rew-rank-title').textContent = getRankTitle(p.totalXp || 0);
+      document.getElementById('rew-level').textContent = lvl.level;
+      document.getElementById('rew-xp').textContent = p.totalXp || 0;
+      document.getElementById('rew-next-lvl').textContent = `${lvl.nextNeeded} XP to Lvl ${lvl.level + 1}`;
+      document.getElementById('rew-lvl-bar').style.width = `${lvl.pct}%`;
+      document.getElementById('rew-coins').textContent = p.coins || 0;
+      document.getElementById('stat-answers').textContent = p.answersWrittenTotal || 0;
+      document.getElementById('stat-topics').textContent = Object.values(state.syllabus.stages).filter(v => v === 3).length;
+      document.getElementById('prof-squad-btn-lbl').textContent = p.squadCode ? `Squad: ${p.squadCode}` : 'Join Squad';
+
+     // Streak Freeze Store
+      const freezes = p.streakFreezes || 0;
+      document.getElementById('freeze-owned-pill').textContent = `Owned: ${freezes} / 3`;
+      const fBtn = document.getElementById('buy-freeze-btn');
+      if (freezes >= 3) {
+        fBtn.textContent = 'Max Held (3/3)';
+        fBtn.className = 'px-4 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-500 text-xs font-extrabold shrink-0 cursor-not-allowed';
+      } else {
+        fBtn.innerHTML = '<i data-lucide="coins" class="w-3.5 h-3.5 text-amber-300"></i> Buy for 150 Coins';
+        fBtn.className = 'px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-extrabold shadow-sm shrink-0 transition flex items-center justify-center gap-1.5';
+      }
+
+      // Personal Shop
+      document.getElementById('rewards-shop-grid').innerHTML = state.rewards.items.map(r => {
+        const ok = (p.coins || 0) >= r.cost;
+        return `
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60 flex flex-col justify-between gap-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="text-2xl">${esc(r.emoji || '🎁')}</span>
+                <div>
+                  <div class="font-bold text-sm leading-snug">${esc(r.name)}</div>
+                  <div class="text-xs font-extrabold text-amber-500">${r.cost} Coins</div>
+                </div>
+              </div>
+              ${r.custom ? `<button onclick="deleteReward('${r.id}')" class="text-slate-400 hover:text-rose-500"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>` : ''}
+            </div>
+            <button onclick="redeemReward('${r.id}')" class="w-full py-2 rounded-xl text-xs font-bold transition ${ok ? 'bg-amber-500 hover:bg-amber-600 text-slate-950' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 cursor-not-allowed'}">
+              ${ok ? 'Redeem' : `Need ${r.cost - (p.coins || 0)} more`}
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      const hw = document.getElementById('redemption-history-wrap');
+      if (state.rewards.history.length) {
+        hw.classList.remove('hidden');
+        document.getElementById('redemption-history-list').innerHTML = state.rewards.history.map(h => `<span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[11px] font-medium">${esc(h.emoji)} ${esc(h.name)} (-${h.cost}c)</span>`).join('');
+      } else hw.classList.add('hidden');
+
+      // 8 Badges
+      const unSet = new Set(p.unlockedBadges || []);
+      let uCount = 0;
+      document.getElementById('badges-grid').innerHTML = BADGES.map(b => {
+        const has = unSet.has(b.id) || b.check(state);
+        if (has) uCount++;
+        return `
+          <div class="p-3.5 rounded-xl border text-center ${has ? 'bg-white dark:bg-slate-900 border-indigo-200 dark:border-indigo-500/30' : 'bg-slate-50 dark:bg-slate-800/30 border-slate-200/60 dark:border-slate-800 opacity-50 grayscale'}">
+            <div class="w-10 h-10 rounded-xl mx-auto flex items-center justify-center text-white bg-gradient-to-br ${b.color} mb-2">
+              <i data-lucide="${b.icon}" class="w-5 h-5"></i>
+            </div>
+            <div class="font-bold text-xs">${b.name}</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">${b.desc}</div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('badges-count').textContent = `${uCount} of ${BADGES.length} unlocked`;
+
+      // Profile Form
+      const pn = document.getElementById('prof-name');
+      if (document.activeElement !== pn) pn.value = p.displayName || '';
+      const po = document.getElementById('prof-optional');
+      if (document.activeElement !== po) po.value = p.optionalSubject || 'PSIR';
+      const pt = document.getElementById('prof-target-xp');
+      if (document.activeElement !== pt) pt.value = p.dailyTargetXp || 150;
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // 13. NAVIGATION, THEME & UTILITIES
+    // =========================================================================
+
+    window.switchTab = function (tab) {
+      state.activeTab = tab;
+      document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
+      document.getElementById(`view-${tab}`)?.classList.remove('hidden');
+
+      document.querySelectorAll('.desk-nav-btn').forEach(b => {
+        const act = b.dataset.tab === tab;
+        b.className = act
+          ? 'desk-nav-btn relative flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs'
+          : 'desk-nav-btn relative flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+      });
+      document.querySelectorAll('.mob-nav-btn').forEach(b => {
+        const act = b.dataset.tab === tab;
+        b.classList.toggle('text-indigo-600', act);
+        b.classList.toggle('dark:text-indigo-400', act);
+        b.classList.toggle('text-slate-500', !act);
+        b.classList.toggle('dark:text-slate-400', !act);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+    function applyTheme(dark) { document.documentElement.classList.toggle('dark', dark); }
+    window.toggleDarkMode = async function () {
+      const next = !document.documentElement.classList.contains('dark');
+      applyTheme(next);
+      await saveProfile({ darkMode: next });
+    };
+
+    window.openModal = (id) => document.getElementById(id)?.classList.remove('hidden');
+    window.closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
+
+    function confirmAction(title, msg, fn) {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-msg').textContent = msg;
+      document.getElementById('confirm-ok').onclick = async () => { closeModal('modal-confirm'); await fn(); };
+      openModal('modal-confirm');
+    }
+
+    function showToast(msg, type = 'info') {
+      const c = document.getElementById('toast-container');
+      const d = document.createElement('div');
+      d.className = `pointer-events-auto px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg animate-modal ${type === 'success' ? 'bg-emerald-600 text-white' : 'bg-slate-900 dark:bg-white text-white dark:text-slate-950'}`;
+      d.textContent = msg;
+      c.appendChild(d);
+      setTimeout(() => { d.classList.add('opacity-0', 'transition-opacity', 'duration-300'); setTimeout(() => d.remove(), 300); }, 2800);
+    }
+
+    function showXpPop(xpText, sub = '') {
+      const c = document.getElementById('toast-container');
+      const d = document.createElement('div');
+      d.className = 'animate-xp-pop px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-400 text-slate-950 font-extrabold text-xs shadow-xl';
+      d.innerHTML = `<div>✨ ${esc(xpText)}</div>${sub ? `<div class="text-[10px] font-semibold opacity-80">${esc(sub)}</div>` : ''}`;
+      c.appendChild(d);
+      setTimeout(() => d.remove(), 2200);
+    }
+
+    window.copyText = function (text, msg) {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); showToast(msg, 'success'); } catch (e) {}
+      document.body.removeChild(ta);
+    };
+
+    function esc(s) {
+      return String(s || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    document.querySelectorAll('[id^="modal-"]').forEach(m => m.addEventListener('click', (e) => { if (e.target === m) closeModal(m.id); }));
+
+    switchTab('today');
+    initFirebase();
+  </script>
+</body>
+</html>
